@@ -13,7 +13,7 @@ function isValidName(name) {
 
 // POST /api/attendance/add
 router.post('/add', async (req, res) => {
-  const { rollNumber, name } = req.body;
+  const { rollNumber, name , optionalField } = req.body;
   const rawIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   const ipAddress = rawIP.includes('::ffff:') ? rawIP.split('::ffff:')[1] : rawIP;
   const now = new Date();
@@ -42,9 +42,10 @@ router.post('/add', async (req, res) => {
     await Attendance.create({
                 rollNumber,
                 name,
+                optionalField,
                 ipAddress,
                 attendanceDate: currentDate,
-                timestamp: now
+                timestamp: currentTime
         });
     res.status(200).json({ success: true, message: 'Attendance added.' });
   } catch (err) {

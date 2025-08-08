@@ -81,9 +81,9 @@ export default function AllRecordsPage() {
 
 function formatCellValue(value) {
   if (value === null || value === undefined || value === '') return '—';
-  if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+  if (typeof value === 'string' && !isNaN(Date.parse(value)) && value.includes('T')) {
     const date = new Date(value);
-    return date.toLocaleString();
+    return date.toISOString().replace('T', ' ').slice(0, 19); // Format as YYYY-MM-DD HH:MM:SS
   }
   return String(value);
 }

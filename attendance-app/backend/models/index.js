@@ -22,6 +22,10 @@ const Attendance = sequelize.define('Attendance', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  optionalField: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   attendanceDate: {
     type: DataTypes.DATEONLY,
     allowNull: false,
@@ -35,11 +39,8 @@ const Attendance = sequelize.define('Attendance', {
     type: DataTypes.STRING,
     defaultValue: '0.0.0.0',
     allowNull: true,
-  },
-  optionalField: {
-    type: DataTypes.STRING,
-    allowNull: true,
   }
+  
 },
 {
   indexes: [

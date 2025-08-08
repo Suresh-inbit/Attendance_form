@@ -1,10 +1,10 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api/attendance' || 'http://127.0.0.1:5000/api/attendance';
 import axios from 'axios';
-export async function addAttendance(rollNumber, name) {
+export async function addAttendance(rollNumber, name, optionalField) {
   const res = await fetch(`${API_BASE}/add`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ rollNumber, name })
+    body: JSON.stringify({ rollNumber, name , optionalField }),
   });
   return res.json();
 }
