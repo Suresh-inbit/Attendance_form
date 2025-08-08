@@ -9,6 +9,7 @@ function AttendanceListPage() {
 
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
+    today.setHours(today.getHours() + 6); // Adjusting for timezone
     return today.toISOString().split('T')[0]; // 'YYYY-MM-DD'
   });
 

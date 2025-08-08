@@ -5,7 +5,7 @@ const { Attendance, sequelize } = require('../models/index'); // replace with ac
 // Helper functions
 function getTodayDate() {
     const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() -1 );
+tomorrow.setDate(tomorrow.getDate() + 1 );
 const formatted = tomorrow.toISOString().split('T')[0];
   return formatted; // 'YYYY-MM-DD'
 }

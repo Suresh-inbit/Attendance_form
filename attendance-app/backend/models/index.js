@@ -26,6 +26,10 @@ const Attendance = sequelize.define('Attendance', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  // optionalField2: {
+  //   type: DataTypes.STRING,
+  //   allowNull: true,
+  // },
   attendanceDate: {
     type: DataTypes.DATEONLY,
     allowNull: false,

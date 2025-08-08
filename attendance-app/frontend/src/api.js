@@ -3,7 +3,7 @@ const getBaseURL = () => {
   return `http://${hostname}:5000/api/attendance`;
 };
 
-const API_BASE = getBaseURL();
+const API_BASE = getBaseURL() || 'http://localhost:5000/api/attendance' || 'http://127.0.0.1:5000/api/attendance';
 import axios from 'axios';
 export async function addAttendance(rollNumber, name, optionalField) {
   const res = await fetch(`${API_BASE}/add`, {

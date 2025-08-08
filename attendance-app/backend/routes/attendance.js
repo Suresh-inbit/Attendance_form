@@ -1,6 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const { Attendance } = require('../models');
+// import os from 'os';
+const os = require('os');
+
+function getLocalIP() {
+  const interfaces = os.networkInterfaces();
+  for (const name in interfaces) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return '127.0.0.1'; // fallback
+}
 
 // Validation helpers
 function isValidRollNumber(rollNumber) {
@@ -17,9 +31,13 @@ router.post('/add', async (req, res) => {
   const rawIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   const ipAddress = rawIP.includes('::ffff:') ? rawIP.split('::ffff:')[1] : rawIP;
   const now = new Date();
-  const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
+  now.setHours(now.getHours() + 6); // Adjusting for timezone
   const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-
+  now.setHours(now.getHours() - 6); // restore original time
+  const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
+  if(process.env.ALLOW_ENTRY=='False'){
+    return res.status(400).json({success:false , message: "Not the class time..."})
+  }
 
   if (!rollNumber || !isValidRollNumber(rollNumber)) {
     return res.status(400).json({ success: false, message: 'Invalid roll number.' });
@@ -35,9 +53,15 @@ router.post('/add', async (req, res) => {
       return res.status(409).json({ success: false, message: 'Roll number already marked present.' });
     }
     const duplicateIp = await Attendance.findOne({ where: { ipAddress } });
-    if (duplicateIp && ipAddress != process.env.LOCAL_IP) {
-      return res.status(409).json({ success: false, message: 'IP record exists...' + process.env.LOCAL_IP });
+    const localIP = getLocalIP() ;
+
+    if (duplicateIp && ipAddress !== localIP) {
+      return res.status(409).json({
+        success: false,
+        message: 'IP record exists… ' 
+      });
     }
+
 
     await Attendance.create({
                 rollNumber,
