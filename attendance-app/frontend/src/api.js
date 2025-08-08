@@ -1,4 +1,9 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api/attendance' || 'http://127.0.0.1:5000/api/attendance';
+const getBaseURL = () => {
+  const hostname = window.location.hostname;
+  return `http://${hostname}:5000/api/attendance`;
+};
+
+const API_BASE = getBaseURL();
 import axios from 'axios';
 export async function addAttendance(rollNumber, name, optionalField) {
   const res = await fetch(`${API_BASE}/add`, {
