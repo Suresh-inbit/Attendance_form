@@ -55,10 +55,10 @@ router.post('/add', async (req, res) => {
     const duplicateIp = await Attendance.findOne({ where: { ipAddress } });
     const localIP = getLocalIP() ;
 
-    if (duplicateIp && ipAddress !== localIP) {
+    if (duplicateIp && (ipAddress !== localIP && ipAddress !== '127.0.0.1')) {
       return res.status(409).json({
         success: false,
-        message: 'IP record exists… ' 
+        message: 'IP record exists…' + ipAddress + ' ' + localIP
       });
     }
 
@@ -103,6 +103,25 @@ router.get('/all', async (req, res) => {
     res.status(200).json({ success: true, data: records });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error fetching data', error });
+  }
+});
+router.post('/delete', async (req, res)=>{
+  const { rollNumber, date } = req.body;
+  if (!rollNumber || !date) {
+    return res.status(400).json({ success: false, message: 'Roll number and date are required.' });
+  }
+
+  try {
+    const deleted = await Attendance.destroy({
+      where: { rollNumber, attendanceDate: date }
+    });
+    if (deleted) {
+      return res.status(200).json({ success: true, message: 'Attendance record deleted.' });
+    }
+    return res.status(404).json({ success: false, message: 'Attendance record not found.' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
 module.exports = router;

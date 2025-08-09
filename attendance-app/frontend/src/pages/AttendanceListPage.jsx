@@ -70,6 +70,11 @@ const handleDownloadClick = () => {
             Download CSV
           </button>
         </div>
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-md text-gray-800">
+            Present Today: <strong>{sortedList.length ? sortedList.length : 0}</strong>
+          </p>
+        </div>
 
         {loading ? (
           <div>Loading...</div>

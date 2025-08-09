@@ -27,5 +27,13 @@ export async function getAllRecords() {
     }
     return res.json();
 }
+export async function deleteAttendance(rollNumber, date) {
+  const res = await fetch(`${API_BASE}/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rollNumber, date }),
+  });
+  return res.json();
+}
 
 
