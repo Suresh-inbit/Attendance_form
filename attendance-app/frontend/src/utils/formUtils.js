@@ -60,7 +60,7 @@ export function downloadCSV(data, filename, headers) {
     idx + 1,
     item.rollNumber,
     item.name,
-    new Date(item.timestamp).toLocaleString(),
+    item.timestamp,
     item.ipAddress || 'N/A',
   ]);
 

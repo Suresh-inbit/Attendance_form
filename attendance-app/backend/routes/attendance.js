@@ -31,9 +31,9 @@ router.post('/add', async (req, res) => {
   const rawIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   const ipAddress = rawIP.includes('::ffff:') ? rawIP.split('::ffff:')[1] : rawIP;
   const now = new Date();
-  now.setHours(now.getHours() + 6); // Adjusting for timezone
-  const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-  now.setHours(now.getHours() - 6); // restore original time
+  // now.setHours(now.getHours() + 6); // Adjusting for timezone
+  const currentDate = now.toDateString(); // 'YYYY-MM-DD'
+  // now.setHours(now.getHours() - 6); // restore original time
   const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
   if(process.env.ALLOW_ENTRY=='False'){
     return res.status(400).json({success:false , message: "Not the class time..."})
