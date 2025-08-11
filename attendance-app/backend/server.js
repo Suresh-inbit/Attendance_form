@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const attendanceRoutes = require('./routes/attendance');
+const { router: toggleRoutes } = require('./routes/toggle');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,7 @@ const corsOptions = {
 app.use(cors());
 app.use(express.json());
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/toggle', toggleRoutes);
 
 app.get('/', (req, res) => {
   res.send('Attendance API Running');

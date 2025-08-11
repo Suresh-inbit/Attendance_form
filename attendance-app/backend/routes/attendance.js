@@ -3,6 +3,9 @@ const router = express.Router();
 const { Attendance } = require('../models');
 // import os from 'os';
 const os = require('os');
+const { getToggleAttendance } = require('../routes/toggle'); // Import the toggle state
+
+// let toggleAttendance = getToggleAttendance(); // in-memory toggle state
 
 function getLocalIP() {
   const interfaces = os.networkInterfaces();
@@ -35,9 +38,10 @@ router.post('/add', async (req, res) => {
   const currentDate = now.toDateString(); // 'YYYY-MM-DD'
   // now.setHours(now.getHours() - 6); // restore original time
   const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
-  if(process.env.ALLOW_ENTRY=='False'){
-    return res.status(400).json({success:false , message: "Not the class time..."})
+  if (!getToggleAttendance()) {
+    return res.status(400).json({ success: false, message: "Not the class time..." });
   }
+
 
   if (!rollNumber || !isValidRollNumber(rollNumber)) {
     return res.status(400).json({ success: false, message: 'Invalid roll number.' });
@@ -52,13 +56,13 @@ router.post('/add', async (req, res) => {
     if (existingEntry) {
       return res.status(409).json({ success: false, message: 'Roll number already marked present.' });
     }
-    const duplicateIp = await Attendance.findOne({ where: { ipAddress } });
+    const duplicateIp = await Attendance.findOne({ where: { ipAddress , attendanceDate: currentDate } });
     const localIP = getLocalIP() ;
 
     if (duplicateIp && (ipAddress !== localIP && ipAddress !== '127.0.0.1')) {
       return res.status(409).json({
         success: false,
-        message: 'IP record exists…' + ipAddress + ' ' + localIP
+        message: 'Proxy not allowed.'
       });
     }
 
@@ -95,7 +99,7 @@ router.get('/list', async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
-router.get('/all', async (req, res) => {
+router.get('/list-all', async (req, res) => {
   try {
     const records = await Attendance.findAll({
       order: [['timestamp', 'DESC']], 
@@ -106,17 +110,27 @@ router.get('/all', async (req, res) => {
   }
 });
 router.post('/delete', async (req, res)=>{
-  const { rollNumber, date } = req.body;
+  // Delete attendance record by roll number and date
+  // Request body should contain rollNumber and date
+  const { rollNumber, date , ipAddress} = req.body;
   if (!rollNumber || !date) {
     return res.status(400).json({ success: false, message: 'Roll number and date are required.' });
   }
 
   try {
     const deleted = await Attendance.destroy({
-      where: { rollNumber, attendanceDate: date }
+      where: {rollNumber, attendanceDate: date }
     });
     if (deleted) {
       return res.status(200).json({ success: true, message: 'Attendance record deleted.' });
+    }
+    else{
+      const deleteIP = await Attendance.destroy({
+        where: {ipAddress: ipAddress, attendanceDate: date }
+      });
+      if (deleteIP) {
+        return res.status(200).json({ success: true, message: 'Attendance record deleted by IP' });
+      }
     }
     return res.status(404).json({ success: false, message: 'Attendance record not found.' });
   } catch (error) {

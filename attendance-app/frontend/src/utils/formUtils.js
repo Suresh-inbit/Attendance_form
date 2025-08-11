@@ -62,6 +62,7 @@ export function downloadCSV(data, filename, headers) {
     item.name,
     item.timestamp,
     item.ipAddress || 'N/A',
+    item.optionalField || '__',
   ]);
 
   const csvContent =
