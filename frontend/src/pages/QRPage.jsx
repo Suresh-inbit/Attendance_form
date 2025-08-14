@@ -13,7 +13,7 @@ function QRCodePage() {
   const getBaseURL = () => {
     const hostname = window.location.hostname;
     // Change 5000 to your backend port
-    return `http://${hostname}:5173/`; 
+    return `http://${hostname}/`; 
   };
 
   const fetchCount = async (isInitial = false) => {
