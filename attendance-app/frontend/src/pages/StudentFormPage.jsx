@@ -88,7 +88,7 @@ function StudentFormPage() {
             id="rollNumber"
             type="text"
             value={rollNumber}
-            onChange={e => setRollNumber(e.target.value)}
+            onChange={e => setRollNumber(e.target.value.toUpperCase())}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
             required
             autoFocus

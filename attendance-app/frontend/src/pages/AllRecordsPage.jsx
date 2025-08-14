@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { getAllRecords } from '../api';
-import { useLocation } from 'react-router-dom';
-
+import {deleteAttendance} from '../api';
 export default function AllRecordsPage() {
-  const location = useLocation();
   const [records, setRecords] = useState([]);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
   const fetchList = async () => {
     setLoading(true);
@@ -29,16 +26,27 @@ export default function AllRecordsPage() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (location.state?.submitted) {
-      setSuccessMessage('✅ Attendance successfully submitted!');
-      // Optional: Clear it after a few seconds
-      setTimeout(() => setSuccessMessage(''), 4000);
+    const handleDelete = async (rollNumber,date, ipAddress) => {
+    const confirmDelete = window.confirm(`Are you sure you want to delete roll number ${rollNumber}, ${date}, ${ipAddress}, ?`);
+    if (!confirmDelete) return;
+  
+    try {
+      const res = await deleteAttendance(rollNumber, date, ipAddress);
+      // alert(res.success);
+      if (res.success) {
+        // Remove the deleted student from the state
+        setRecords((prevList) => prevList.filter((record) => record.rollNumber !== rollNumber));
+      } else {
+        alert(`Delete failed: ${res.message || 'Unknown error'}`);
+      }
+    } catch (err) {
+      alert('Network error while deleting.');
     }
-    fetchList();
-  }, []);
-
+  };
+  
+  useEffect(()=>{
+      fetchList();
+    }, []);
   if (loading) return <div className="p-4">Loading records...</div>;
   if (error) return <div className="p-4 text-red-600">{error}</div>;
   if (records.length === 0) return <div className="p-4">No records found.</div>;
@@ -47,29 +55,36 @@ export default function AllRecordsPage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">All Attendance Records</h1>
 
-      {successMessage && (
+      {/* {successMessage && (
         <div className="mb-4 p-2 bg-green-100 border border-green-400 text-green-800 rounded">
           {successMessage}
         </div>
-      )}
+      )} */}
 
       <div className="overflow-x-auto">
         <table className="min-w-max w-full border text-left">
-          <thead className="bg-gray-100">
+          <thead className="bg-gray-300">
             <tr>
               {columns.map((col) => (
-                <th key={col} className="p-2 border capitalize">{col}</th>
+                <th key={col} className="p-2 border capitalize text-center">{col}</th>
               ))}
+              <th className='p-2 text-center'> Delete</th>
             </tr>
           </thead>
           <tbody>
             {records.map((record, i) => (
-              <tr key={i} className="border-t even:bg-gray-50">
+              <tr key={i} className="border-t even:bg-gray-100">
                 {columns.map((col) => (
-                  <td key={col} className="p-2 border">
+                  <td key={col} className="p-2 border ">
                     {formatCellValue(record[col])}
                   </td>
                 ))}
+                <td className='text-center'> <button
+                          onClick={() => handleDelete(record.rollNumber, record.attendanceDate, record.ipAddress)}
+                          className="bg-red-300 px-2 text-center rounded hover:bg-red-600 transition">
+                          <p>Delete</p>
+                      </button>        
+                </td>
               </tr>
             ))}
           </tbody>

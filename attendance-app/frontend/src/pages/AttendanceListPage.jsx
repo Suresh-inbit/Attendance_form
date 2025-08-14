@@ -4,12 +4,31 @@ import { Link } from 'react-router-dom';
 import { downloadCSV , updateSort, sortList, formatTime12Hour} from '../utils/formUtils'; // Assuming you have a utility function for CSV download
 import {setToggleState, getToggleState} from '../api';
 import {setToggleAttendance, getToggleAttendance } from '../api';
+import { deleteAttendance } from '../api';
+
 function AttendanceListPage() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showExtraInput, setShowExtraInput] = useState(false);
   const [takeAttendance, setTakeAttendance] = useState(false);
+
+  const handleDelete = async (rollNumber, ipAddress) => {
+  const confirmDelete = window.confirm(`Are you sure you want to delete roll number ${rollNumber}?`);
+  if (!confirmDelete) return;
+
+  try {
+    const res = await deleteAttendance(rollNumber, selectedDate, ipAddress);
+    if (res.success) {
+      // Remove the deleted student from the state
+      setList((prevList) => prevList.filter((student) => student.rollNumber !== rollNumber));
+    } else {
+      alert(`Delete failed: ${res.message || 'Unknown error'}`);
+    }
+  } catch (err) {
+    alert('Network error while deleting.');
+  }
+};
 
   useEffect(() => {
     // Fetch initial toggle state from backend
@@ -160,6 +179,8 @@ const handleDownloadClick = () => {
                   </th>
                   <th className="p-2">IP Address</th>
                    {showExtraInput && <th className="p-2 text-center">Answer</th>}
+                   {/* <th className="p-2 text-center">Actions</th> */}
+
                 </tr>
               </thead>
               <tbody>
@@ -180,6 +201,14 @@ const handleDownloadClick = () => {
                       {/* <td className="p-2">{new Date(student.timestamp).toLocaleString()}</td> */}
                       <td className="p-2">{student.ipAddress || 'N/A'}</td>
                       {showExtraInput && <td className="p-2 text-center">{student.optionalField || '__'}</td>}
+                      {/* <td className="p-2 text-center">
+                        <button
+                          onClick={() => handleDelete(student.rollNumber, student.ipAddress)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          Delete
+                        </button>
+                      </td> */}
                     </tr>
                   ))
                 )}

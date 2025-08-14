@@ -34,9 +34,9 @@ router.post('/add', async (req, res) => {
   const rawIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   const ipAddress = rawIP.includes('::ffff:') ? rawIP.split('::ffff:')[1] : rawIP;
   const now = new Date();
-  // now.setHours(now.getHours() + 6); // Adjusting for timezone
+  now.setHours(now.getHours() + 6); // Adjusting for timezone
   const currentDate = now.toDateString(); // 'YYYY-MM-DD'
-  // now.setHours(now.getHours() - 6); // restore original time
+  now.setHours(now.getHours() - 6); // restore original time
   const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
   if (!getToggleAttendance()) {
     return res.status(400).json({ success: false, message: "Not the class time..." });
@@ -99,10 +99,35 @@ router.get('/list', async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
+
+// GET /api/attendance/count
+router.get('/count', async (req, res) => {
+  try {
+    const { date } = req.query;
+    if (!date) {
+      return res.status(400).json({ success: false, message: 'Date is required.' });
+    }
+
+    const count = await Attendance.count({
+      where: { attendanceDate: date }
+    });
+
+    res.status(200).json({
+      success: true,
+      date,
+      count
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
 router.get('/list-all', async (req, res) => {
   try {
     const records = await Attendance.findAll({
-      order: [['timestamp', 'DESC']], 
+      order: [['createdAt', 'DESC']], 
     });
     res.status(200).json({ success: true, data: records });
   } catch (error) {

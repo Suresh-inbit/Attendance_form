@@ -27,11 +27,11 @@ export async function getAllRecords() {
     }
     return res.json();
 }
-export async function deleteAttendance(rollNumber, date) {
+export async function deleteAttendance(rollNumber, date, ipAddress) {
   const res = await fetch(`${API_BASE}/attendance/delete`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ rollNumber, date }),
+    body: JSON.stringify({ rollNumber, date , ipAddress}),
   });
   return res.json();
 }
@@ -79,3 +79,24 @@ export const setToggleAttendance = async (newState) => {
   const data = await res.json();
   return data.state; // server should respond with { state: true/false }
 }
+
+export const getCount = async (Date) => {
+  const url = Date ? `${API_BASE}/attendance/count?date=${encodeURIComponent(Date)}` : `${API_BASE}/attendance/list`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error('Failed to fetch toggle state');
+  }
+  const count = await res.json();
+  return count;
+};
+
+// Make API functions globally accessible for console testing
+window.addAttendance = addAttendance;
+window.getAttendanceList = getAttendanceList;
+window.getAllRecords = getAllRecords;
+window.deleteAttendance = deleteAttendance;
+window.setToggleState = setToggleState;
+window.getToggleState = getToggleState;
+window.getToggleAttendance = getToggleAttendance;
+window.setToggleAttendance = setToggleAttendance;
+window.getCount = getCount;
