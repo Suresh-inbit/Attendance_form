@@ -138,6 +138,6 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 ./node_modules/*
-./frontend/node_modules
+./frontend/node_modules/*
 ./backend/node_modules/*
 ./attendance-app/node_modules/*
