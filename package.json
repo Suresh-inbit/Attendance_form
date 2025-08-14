@@ -1,0 +1,11 @@
+{
+  "name": "attendance-app",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "start": "concurrently \"npm run dev --workspace backend\" \"npm start --workspace frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
