@@ -1,9 +1,5 @@
-const getBaseURL = () => {
-  const hostname = window.location.hostname;
-  return  `http://${hostname}:5000/api`;
-};
-
-const API_BASE = getBaseURL() || 'http://localhost:5000/api' || 'http://127.0.0.1:5000/api';
+const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api` || 'http://localhost:5000/api';
+console.log(API_BASE);
 import axios from 'axios';
 export async function addAttendance(rollNumber, name, optionalField) {
   const res = await fetch(`${API_BASE}/attendance/add`, {
@@ -91,12 +87,12 @@ export const getCount = async (Date) => {
 };
 
 // Make API functions globally accessible for console testing
-window.addAttendance = addAttendance;
-window.getAttendanceList = getAttendanceList;
-window.getAllRecords = getAllRecords;
-window.deleteAttendance = deleteAttendance;
-window.setToggleState = setToggleState;
-window.getToggleState = getToggleState;
-window.getToggleAttendance = getToggleAttendance;
-window.setToggleAttendance = setToggleAttendance;
-window.getCount = getCount;
+// window.addAttendance = addAttendance;
+// window.getAttendanceList = getAttendanceList;
+// window.getAllRecords = getAllRecords;
+// window.deleteAttendance = deleteAttendance;
+// window.setToggleState = setToggleState;
+// window.getToggleState = getToggleState;
+// window.getToggleAttendance = getToggleAttendance;
+// window.setToggleAttendance = setToggleAttendance;
+// window.getCount = getCount;
