@@ -9,8 +9,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<StudentFormPage />} />
-        <Route path="/list" element={<AttendanceListPage />} />
-        <Route path="/you-cant" element={<AllRecordsPage />} />
+        <Route path="/admin" element={<AttendanceListPage />} />
+        <Route path="/data" element={<AllRecordsPage />} />
         <Route path="/qr" element={<QRCodePage />} />
         <Route path="*" element={<div className="text-center mt-10">Page Not Found</div>} />
       </Routes>
