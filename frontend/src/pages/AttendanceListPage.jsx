@@ -368,7 +368,7 @@ function AttendanceListPage() {
                         <div className="text-gray-500">
                           <Users className="w-12 h-12 mx-auto mb-4 opacity-30" />
                           <p className="text-lg">No attendance records found</p>
-                          <p className="text-sm">Students will appear here once they submit attendance</p>
+                          {/* <p className="text-sm">Students will appear here once they submit attendance</p> */}
                         </div>
                       </td>
                     </tr>

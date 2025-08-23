@@ -118,11 +118,13 @@ function StudentFormPage() {
           {/* <p className="text-gray-600">Mark your attendance for today's session</p> */}
           <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-500">
             <Calendar className="w-4 h-4" />
-            <span>{new Date().toLocaleDateString('en-US', { 
+            <span>{new Date().toLocaleString('en-US', { 
               weekday: 'long', 
               year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+              month: 'short', 
+              day: 'numeric', 
+              hour:'2-digit',
+              minute:'numeric'
             })}</span>
           </div>
         </div>
