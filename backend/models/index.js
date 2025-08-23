@@ -1,6 +1,8 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const path = require('path');
-require('dotenv').config();
+import { Sequelize, DataTypes } from 'sequelize';
+import { join } from 'path';
+// require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 // SQLite database stored in a file
 const sequelize = new Sequelize({
@@ -57,4 +59,4 @@ const Attendance = sequelize.define('Attendance', {
 
 sequelize.sync(); // Ensures table is created
 
-module.exports = { sequelize, Attendance };
+export default { sequelize, Attendance };
