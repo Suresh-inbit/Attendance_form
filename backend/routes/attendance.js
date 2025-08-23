@@ -5,17 +5,7 @@ const os = require('os');
 const { getToggleAttendance } = require('../routes/toggle');
 
 // Helper: Get local IP
-function getLocalIP() {
-  const interfaces = os.networkInterfaces();
-  for (const name in interfaces) {
-    for (const iface of interfaces[name]) {
-      if (iface.family === 'IPv4' && !iface.internal) {
-        return iface.address;
-      }
-    }
-  }
-  return '127.0.0.1';
-}
+
 
 // Validation helpers
 function isValidRollNumber(rollNumber) {
@@ -58,9 +48,9 @@ router.post('/add', async (req, res) => {
 
     // Check duplicate IP for same date
     const duplicateIp = await Attendance.findOne({ ipAddress, attendanceDate: currentDate });
-    const localIP = getLocalIP();
+    const AllowedIP = process.env.ADMIN_IP;
 
-    if (duplicateIp && (ipAddress !== localIP && ipAddress !== '127.0.0.1')) {
+    if (duplicateIp && (ipAddress !== AllowedIP && ipAddress !== '127.0.0.1')) {
       return res.status(409).json({ success: false, message: 'Proxy not allowed.' });
     }
 
@@ -118,7 +108,7 @@ router.get('/count', async (req, res) => {
 // GET /api/attendance/list-all
 router.get('/list-all', async (req, res) => {
   try {
-    const records = await Attendance.find().sort({ createdAt: -1 });
+    const records = await Attendance.find().sort({ currentDate: -1 });
     res.status(200).json({ success: true, data: records });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error fetching data', error });

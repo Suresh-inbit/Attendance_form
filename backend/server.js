@@ -33,19 +33,4 @@ mongoose.connect(process.env.MONGO_URI, {
     console.error('❌ MongoDB connection error:', err.message);
   });
   
-  app.listen(PORT, () => {
-    const interfaces = os.networkInterfaces();
-    let ipAddresses = [];
-    for (const iface of Object.values(interfaces)) {
-      for (const config of iface) {
-        if (config.family === 'IPv4' && !config.internal) {
-          ipAddresses.push(config.address);
-        }
-      }
-    }
-    console.log(`🚀 Server running on:`);
-    ipAddresses.forEach(ip => {
-      console.log(`   http://${ip}:${PORT}`);
-    });
-  });
 module.exports = app;
