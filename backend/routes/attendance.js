@@ -16,8 +16,13 @@ function isValidName(name) {
 // POST /api/attendance/add
 router.post('/add', async (req, res) => {
   const { rollNumber, name, optionalField } = req.body;
-  const rawIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  const ipAddress = rawIP.includes('::ffff:') ? rawIP.split('::ffff:')[1] : rawIP;
+  let rawIP =
+  req.headers['x-forwarded-for']?.split(',')[0].trim() ||
+  req.connection?.remoteAddress ||
+  req.socket?.remoteAddress ||
+  req.ip;
+
+  const ipAddress = rawIP.startsWith("::ffff:") ? rawIP.substring(7) : rawIP;
 
   const now = new Date();
   now.setHours(now.getHours() + 6); 
@@ -45,12 +50,12 @@ router.post('/add', async (req, res) => {
     }
 
     // Check duplicate IP for same date
-    // const duplicateIp = await Attendance.findOne({ ipAddress, attendanceDate: currentDate });
-    // const AllowedIP = process.env.ADMIN_IP;
+    const duplicateIp = await Attendance.findOne({ ipAddress, attendanceDate: currentDate });
+    const AllowedIP = process.env.ADMIN_IP;
 
-    // if (duplicateIp && (ipAddress !== AllowedIP && ipAddress !== '127.0.0.1')) {
-    //   return res.status(409).json({ success: false, message: 'Proxy not allowed.' });
-    // }
+    if (duplicateIp && (ipAddress !== AllowedIP && ipAddress !== '127.0.0.1')) {
+      return res.status(409).json({ success: false, message: 'Proxy not allowed.' });
+    }
 
     // Save attendance
     const newEntry = new Attendance({
