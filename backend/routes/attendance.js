@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { Attendance } = require('../models');
-// import os from 'os';
+const Attendance = require('../models/index'); // model we converted
 const os = require('os');
-const { getToggleAttendance } = require('../routes/toggle'); // Import the toggle state
+const { getToggleAttendance } = require('../routes/toggle');
 
-// let toggleAttendance = getToggleAttendance(); // in-memory toggle state
-
+// Helper: Get local IP
 function getLocalIP() {
   const interfaces = os.networkInterfaces();
   for (const name in interfaces) {
@@ -16,7 +14,7 @@ function getLocalIP() {
       }
     }
   }
-  return '127.0.0.1'; // fallback
+  return '127.0.0.1';
 }
 
 // Validation helpers
@@ -27,21 +25,22 @@ function isValidName(name) {
   return /^[A-Za-z ]+$/.test(name);
 }
 
-
 // POST /api/attendance/add
 router.post('/add', async (req, res) => {
-  const { rollNumber, name , optionalField } = req.body;
+  const { rollNumber, name, optionalField } = req.body;
   const rawIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   const ipAddress = rawIP.includes('::ffff:') ? rawIP.split('::ffff:')[1] : rawIP;
+
   const now = new Date();
-  now.setHours(now.getHours() + 6); // Adjusting for timezone
-  const currentDate = now.toDateString(); // 'YYYY-MM-DD'
-  now.setHours(now.getHours() - 6); // restore original time
-  const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
+  now.setHours(now.getHours() + 6); 
+  const currentDate = now.toISOString().split("T")[0]; // "Mon Aug 12 2025"
+  // console.log(currentDate);
+  now.setHours(now.getHours() - 6); 
+  const currentTime = now.toTimeString().split(' ')[0]; 
+
   if (!getToggleAttendance()) {
     return res.status(400).json({ success: false, message: "Not the class time..." });
   }
-
 
   if (!rollNumber || !isValidRollNumber(rollNumber)) {
     return res.status(400).json({ success: false, message: 'Invalid roll number.' });
@@ -49,58 +48,57 @@ router.post('/add', async (req, res) => {
   if (!name || !isValidName(name)) {
     return res.status(400).json({ success: false, message: 'Invalid name.' });
   }
-  
 
   try {
-    const existingEntry = await Attendance.findOne({ where: { rollNumber , attendanceDate: currentDate } });
+    // Check if already marked by rollNumber for this date
+    const existingEntry = await Attendance.findOne({ rollNumber, attendanceDate: currentDate });
     if (existingEntry) {
       return res.status(409).json({ success: false, message: 'Roll number already marked present.' });
     }
-    const duplicateIp = await Attendance.findOne({ where: { ipAddress , attendanceDate: currentDate } });
-    const localIP = getLocalIP() ;
+
+    // Check duplicate IP for same date
+    const duplicateIp = await Attendance.findOne({ ipAddress, attendanceDate: currentDate });
+    const localIP = getLocalIP();
 
     if (duplicateIp && (ipAddress !== localIP && ipAddress !== '127.0.0.1')) {
-      return res.status(409).json({
-        success: false,
-        message: 'Proxy not allowed.'
-      });
+      return res.status(409).json({ success: false, message: 'Proxy not allowed.' });
     }
 
+    // Save attendance
+    const newEntry = new Attendance({
+      rollNumber,
+      name,
+      optionalField,
+      ipAddress,
+      attendanceDate: currentDate,
+      timestamp: currentTime,
+    });
 
-    await Attendance.create({
-                rollNumber,
-                name,
-                optionalField,
-                ipAddress,
-                attendanceDate: currentDate,
-                timestamp: currentTime
-        });
+    await newEntry.save();
     res.status(200).json({ success: true, message: 'Attendance added.' });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// GET /api/attendance/list
+// GET /api/attendance/list?date=...
 router.get('/list', async (req, res) => {
   try {
     const { date } = req.query;
-     if (!date) {
+    if (!date) {
       return res.status(400).json({ success: false, message: 'Date is required.' });
     }
 
-    const records = await Attendance.findAll({
-      where: date ? { attendanceDate: date } : {},
-      order: [['timestamp', 'DESC']]
-    });
+    const records = await Attendance.find({ attendanceDate: date }).sort({ timestamp: -1 });
     res.status(200).json({ success: true, data: records });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// GET /api/attendance/count
+// GET /api/attendance/count?date=...
 router.get('/count', async (req, res) => {
   try {
     const { date } = req.query;
@@ -108,59 +106,49 @@ router.get('/count', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Date is required.' });
     }
 
-    const count = await Attendance.count({
-      where: { attendanceDate: date }
-    });
+    const count = await Attendance.countDocuments({ attendanceDate: date });
 
-    res.status(200).json({
-      success: true,
-      date,
-      count
-    });
+    res.status(200).json({ success: true, date, count });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-
+// GET /api/attendance/list-all
 router.get('/list-all', async (req, res) => {
   try {
-    const records = await Attendance.findAll({
-      order: [['createdAt', 'DESC']], 
-    });
+    const records = await Attendance.find().sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: records });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error fetching data', error });
   }
 });
-router.post('/delete', async (req, res)=>{
-  // Delete attendance record by roll number and date
-  // Request body should contain rollNumber and date
-  const { rollNumber, date , ipAddress} = req.body;
+
+// POST /api/attendance/delete
+router.post('/delete', async (req, res) => {
+  const { rollNumber, date, ipAddress } = req.body;
   if (!rollNumber || !date) {
     return res.status(400).json({ success: false, message: 'Roll number and date are required.' });
   }
 
   try {
-    const deleted = await Attendance.destroy({
-      where: {rollNumber, attendanceDate: date }
-    });
+    let deleted = await Attendance.findOneAndDelete({ rollNumber, attendanceDate: date });
     if (deleted) {
       return res.status(200).json({ success: true, message: 'Attendance record deleted.' });
     }
-    else{
-      const deleteIP = await Attendance.destroy({
-        where: {ipAddress: ipAddress, attendanceDate: date }
-      });
-      if (deleteIP) {
-        return res.status(200).json({ success: true, message: 'Attendance record deleted by IP' });
-      }
+
+    deleted = await Attendance.findOneAndDelete({ ipAddress, attendanceDate: date });
+    if (deleted) {
+      return res.status(200).json({ success: true, message: 'Attendance record deleted by IP.' });
     }
+
     return res.status(404).json({ success: false, message: 'Attendance record not found.' });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
+
 module.exports = router;

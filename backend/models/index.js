@@ -1,62 +1,48 @@
-import { Sequelize, DataTypes } from 'sequelize';
-import { join } from 'path';
-// require('dotenv').config();
-import dotenv from 'dotenv';
-dotenv.config();
+// models/attendance.js
+const mongoose = require('mongoose');
+require('dotenv').config();
 
-// SQLite database stored in a file
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: path.join(__dirname, 'attendance.sqlite'),
-});
+// Connect to MongoDB (connection handled in server.js, so you can remove this connect if already done there)
+// mongoose.connect(process.env.MONGO_URI);
 
-const Attendance = sequelize.define('Attendance', {
- 
+// Define schema
+const attendanceSchema = new mongoose.Schema({
   rollNumber: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-      is: /^[a-zA-Z0-9]+$/, // Alphanumeric roll numbers
-      notEmpty: true,
-    } 
+    type: String,
+    required: true,
+    match: /^[a-zA-Z0-9]+$/, // Alphanumeric roll numbers
+    trim: true,
   },
   name: {
-    type: DataTypes.STRING,
-    allowNull: false
+    type: String,
+    required: true,
   },
   optionalField: {
-    type: DataTypes.STRING,
-    allowNull: true,
+    type: String,
+    default: null,
   },
-  // optionalField2: {
-  //   type: DataTypes.STRING,
-  //   allowNull: true,
-  // },
   attendanceDate: {
-    type: DataTypes.DATEONLY,
-    allowNull: false,
-    defaultValue: DataTypes.NOW,
+  type: Date,
+  required: true,
+  default: () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // reset time part to 00:00:00
+    return today;
+  }
   },
   timestamp: {
-    type: DataTypes.TIME,
-    defaultValue: DataTypes.NOW
+    type: String,
+    default: () => new Date().toLocaleTimeString(), // store just time
   },
   ipAddress: {
-    type: DataTypes.STRING,
-    defaultValue: '0.0.0.0',
-    allowNull: true,
-  }
-  
-},
-{
-  indexes: [
-    {
-      unique: true,
-      fields: ['rollNumber', 'attendanceDate']
-    }
-  ]
+    type: String,
+    default: '0.0.0.0',
+  },
 });
 
-sequelize.sync(); // Ensures table is created
+// Unique index on rollNumber + attendanceDate
+attendanceSchema.index({ rollNumber: 1, attendanceDate: 1 }, { unique: true });
 
-export default { sequelize, Attendance };
+const Attendance = mongoose.model('Attendance', attendanceSchema);
+
+module.exports = Attendance;
