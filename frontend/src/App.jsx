@@ -4,6 +4,7 @@ import StudentFormPage from './pages/StudentFormPage';
 import AttendanceListPage from './pages/AttendanceListPage';
 import AllRecordsPage from './pages/AllRecordsPage';
 import QRCodePage from './pages/QRPage';
+// import { SpeedInsights } from "@vercel/speed-insights/next"
 function App() {
   return (
     <Router>

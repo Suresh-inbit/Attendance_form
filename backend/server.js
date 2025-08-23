@@ -21,6 +21,7 @@ app.get('/', (req, res) => {
 });
 
 // MongoDB Connection
+
 mongoose.connect(process.env.MONGO_URI, {
   dbName: 'Attendance',
 })
