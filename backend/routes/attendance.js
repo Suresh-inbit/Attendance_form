@@ -55,9 +55,9 @@ router.post('/add', async (req, res) => {
     const duplicateIp = await Attendance.findOne({ ipAddress, attendanceDate: currentDate });
     const AllowedIP = process.env.ADMIN_IP;
 
-    if (duplicateIp && (ipAddress !== AllowedIP && ipAddress !== '127.0.0.1')) {
-      return res.status(409).json({ success: false, message: 'Proxy not allowed.' });
-    }
+    // if (duplicateIp && (ipAddress !== AllowedIP && ipAddress !== '127.0.0.1')) {
+    //   return res.status(409).json({ success: false, message: 'Proxy not allowed.' });
+    // }
 
     // Save attendance
     const newEntry = new Attendance({
