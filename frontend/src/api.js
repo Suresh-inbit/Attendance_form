@@ -1,6 +1,6 @@
 const getBaseURL = () => {
   const hostname = window.location.hostname;
-  return "https://attendance-form.onrender.com/api" || `http://${hostname}:5000/api`;
+  return  `http://${hostname}:5000/api`;
 };
 
 const API_BASE = getBaseURL() || 'http://localhost:5000/api' || 'http://127.0.0.1:5000/api';
