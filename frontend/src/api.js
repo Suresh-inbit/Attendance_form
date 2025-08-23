@@ -1,4 +1,4 @@
-const API_BASE =  'http://localhost:5000/api';
+const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api`;
 console.log(API_BASE);
 import axios from 'axios';
 export async function addAttendance(rollNumber, name, optionalField) {
