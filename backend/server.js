@@ -5,10 +5,8 @@ require('dotenv').config();
 
 const attendanceRoutes = require('./routes/attendance');
 const { router: toggleRoutes } = require('./routes/toggle');
-const os = require('os');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(cors());
@@ -33,4 +31,15 @@ mongoose.connect(process.env.MONGO_URI, {
     console.error('❌ MongoDB connection error:', err.message);
   });
   
+// Handle 404 - Not Found
+app.use((req, res, next) => {
+  res.status(404).send("Sorry, can't find that!");
+});
+
+// Basic Error Handler (Optional but Recommended)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
 module.exports = app;
