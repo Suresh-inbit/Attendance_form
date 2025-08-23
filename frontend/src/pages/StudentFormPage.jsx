@@ -129,7 +129,7 @@ function StudentFormPage() {
 
         {/* Main Form Card */}
         <div className="bg-white rounded-2xl shadow-xl p-10 border border-gray-100">
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Roll Number Input */}
             <div className="space-y-2">
               <label htmlFor="rollNumber" className="block text-sm font-medium text-gray-700">
@@ -145,7 +145,7 @@ function StudentFormPage() {
                   value={rollNumber}
                   onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
-                  placeholder="e.g., CS2021001"
+                  placeholder="e.g., EE25X001"
                   required
                   autoFocus
                 />
@@ -153,7 +153,7 @@ function StudentFormPage() {
             </div>
 
             {/* Name Input */}
-            <div className="space-y-2">
+            <div className="space-y-2" >
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Full Name
               </label>
@@ -214,7 +214,7 @@ function StudentFormPage() {
 
             {/* Submit Button */}
             <button
-              type="button"
+              type="submit"
               onClick={handleSubmit}
               disabled={loading}
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:hover:transform-none"
@@ -228,7 +228,7 @@ function StudentFormPage() {
                 <span>Mark Attendance</span>
               )}
             </button>
-          </div>
+          </form>
         </div>
 
         {/* Footer */}

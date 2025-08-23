@@ -24,14 +24,14 @@ router.post('/add', async (req, res) => {
   req.ip;
 
   const ipAddress = rawIP.startsWith("::ffff:") ? rawIP.substring(7) : rawIP;
+  const IST_OFFSET_MINUTES = 330; // 5 hours and 30 minutes
 
   const now = new Date();
-  now.setHours(now.getHours() + 6); 
-  const currentDate = now.toISOString().split("T")[0]; // "Mon Aug 12 2025"
-  // console.log(currentDate);
-  now.setHours(now.getHours() - 6); 
-  const currentTime = now.toTimeString({timezone:'IST'}).split(' ')[0]; 
+  const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000); // Convert local time to UTC in milliseconds
+  const istTime = new Date(utcTime + (IST_OFFSET_MINUTES * 60000)); // Add IST offset
 
+  const currentDate = istTime.toISOString().split('T')[0];
+  const currentTime = istTime.toTimeString().split(' ')[0];
   const appState = await AppState.findOne({ identifier: 'global' });
   if (!appState || !appState.toggleAttendance) {
     return res.status(400).json({ success: false, message: "Not the class time..." });
