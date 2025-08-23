@@ -4,8 +4,6 @@ const Attendance = require('../models/index'); // model we converted
 const os = require('os');
 const { getToggleAttendance } = require('../routes/toggle');
 
-// Helper: Get local IP
-
 
 // Validation helpers
 function isValidRollNumber(rollNumber) {
