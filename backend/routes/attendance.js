@@ -17,6 +17,7 @@ function isValidName(name) {
 router.post('/add', async (req, res) => {
   const { rollNumber, name, optionalField } = req.body;
   let rawIP =
+  rreq.headers['x-real-ip'] ||
   req.headers['x-forwarded-for']?.split(',')[0].trim() ||
   req.connection?.remoteAddress ||
   req.socket?.remoteAddress ||

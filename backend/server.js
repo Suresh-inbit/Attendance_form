@@ -42,5 +42,8 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-// Export the app instance for Vercel
+const PORT = process.env.PORT || 5000;
+
+const server = app.listen(PORT, '0.0.0.0');
+
 module.exports = app;
