@@ -1,5 +1,5 @@
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api`;
-console.log(API_BASE);
+// console.log(API_BASE);
 import axios from 'axios';
 export async function addAttendance(rollNumber, name, optionalField) {
   const res = await fetch(`${API_BASE}/attendance/add`, {

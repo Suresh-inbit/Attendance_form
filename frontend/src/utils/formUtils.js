@@ -42,14 +42,22 @@ export function formatCellValue(value) {
   }
   return String(value);
 }
-export function formatTime12Hour(timestamp) {
-  return new Date(timestamp).toLocaleTimeString('en-US', {
-    hour12: true,
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-  });
+export function formatTime12Hour(timeString) {
+  // Expect input like "18:07:18"
+  const [h, m, s] = timeString.split(":").map(Number);
+
+  if (isNaN(h) || isNaN(m) || isNaN(s)) {
+    return "Invalid Time";
+  }
+
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hours = h % 12 || 12;
+
+  const pad = (num) => num.toString().padStart(2, "0");
+
+  return `${pad(hours)}:${pad(m)}:${pad(s)} ${ampm}`;
 }
+
 
 export function downloadCSV(data, filename, headers) {
   if (!data.length) {

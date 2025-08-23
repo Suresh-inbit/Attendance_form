@@ -30,7 +30,7 @@ router.post('/add', async (req, res) => {
   const currentDate = now.toISOString().split("T")[0]; // "Mon Aug 12 2025"
   // console.log(currentDate);
   now.setHours(now.getHours() - 6); 
-  const currentTime = now.toTimeString().split(' ')[0]; 
+  const currentTime = now.toTimeString({timezone:'IST'}).split(' ')[0]; 
 
   const appState = await AppState.findOne({ identifier: 'global' });
   if (!appState || !appState.toggleAttendance) {
