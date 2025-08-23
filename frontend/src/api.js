@@ -33,7 +33,7 @@ export async function deleteAttendance(rollNumber, date, ipAddress) {
 }
 
 export const setToggleState = async (newState) => {
-  const res = await fetch(`${API_BASE}/toggle`, {
+  const res = await fetch(`${API_BASE}/toggle/input`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ state: newState }),
@@ -46,7 +46,7 @@ export const setToggleState = async (newState) => {
 };
 
 export const getToggleState = async () => {
-  const res = await fetch(`${API_BASE}/toggle`);
+  const res = await fetch(`${API_BASE}/toggle/input`);
   if (!res.ok) {
     throw new Error('Failed to fetch toggle state');
   }
@@ -55,7 +55,7 @@ export const getToggleState = async () => {
 };
 
 export const getToggleAttendance = async () => {
-  const res = await fetch(`${API_BASE}/toggle/toggle-attendance`);
+  const res = await fetch(`${API_BASE}/toggle/attendance`);
   if (!res.ok) {
     throw new Error('Failed to fetch attendance toggle state');
   }
@@ -64,7 +64,7 @@ export const getToggleAttendance = async () => {
 };
 
 export const setToggleAttendance = async (newState) => {
-  const res = await fetch(`${API_BASE}/toggle/toggle-attendance`, {
+  const res = await fetch(`${API_BASE}/toggle/attendance`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ state: newState }),

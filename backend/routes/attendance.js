@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Attendance = require('../models/index'); // model we converted
 const os = require('os');
-const { getToggleAttendance } = require('../routes/toggle');
+const AppState = require('../models/appState');
 
 
 // Validation helpers
@@ -17,7 +17,7 @@ function isValidName(name) {
 router.post('/add', async (req, res) => {
   const { rollNumber, name, optionalField } = req.body;
   let rawIP =
-  rreq.headers['x-real-ip'] ||
+  req.headers['x-real-ip'] ||
   req.headers['x-forwarded-for']?.split(',')[0].trim() ||
   req.connection?.remoteAddress ||
   req.socket?.remoteAddress ||
@@ -32,7 +32,8 @@ router.post('/add', async (req, res) => {
   now.setHours(now.getHours() - 6); 
   const currentTime = now.toTimeString().split(' ')[0]; 
 
-  if (!getToggleAttendance()) {
+  const appState = await AppState.findOne({ identifier: 'global' });
+  if (!appState || !appState.toggleAttendance) {
     return res.status(400).json({ success: false, message: "Not the class time..." });
   }
 
