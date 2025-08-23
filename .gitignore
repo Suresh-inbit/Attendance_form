@@ -2,7 +2,7 @@
 # Vite logs files
 logs/
 *.log
-node_modules/
+*/node_modules/
 .env
 dist/
 .vite/
