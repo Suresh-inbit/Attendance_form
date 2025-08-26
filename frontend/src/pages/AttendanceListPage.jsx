@@ -262,7 +262,7 @@ function AttendanceListPage() {
 
           {/* Controls */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-2xl shadow-xl p-10 border border-gray-100">
+            <div className="bg-white rounded-2xl shadow-xl p-11 border border-gray-100">
               <div className="flex flex-col sm:flex-row gap-4">
                 {/* Date Picker */}
                 <div className="flex items-center gap-2">
