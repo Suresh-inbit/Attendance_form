@@ -100,9 +100,7 @@ router.get('/count', async (req, res) => {
     if (!date) {
       return res.status(400).json({ success: false, message: 'Date is required.' });
     }
-
     const count = await Attendance.countDocuments({ attendanceDate: date });
-
     res.status(200).json({ success: true, date, count });
   } catch (err) {
     console.error(err);
