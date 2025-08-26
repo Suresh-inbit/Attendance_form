@@ -127,7 +127,7 @@ function QRCodePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* QR Code Section */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-xl p-8 pb-1 border border-gray-100">
+            <div className="bg-white rounded-2xl shadow-xl p-8 pb-2 border border-gray-100">
               <div className="text-center">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">
                   Scan to Mark Attendance
@@ -225,7 +225,7 @@ function QRCodePage() {
 
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
               <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <a
