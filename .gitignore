@@ -1,8 +1,10 @@
-
 # Vite logs files
 logs/
 *.log
-*/node_modules/
-.env
 dist/
 .vite/
+
+*.env
+frontend/.env
+backend/.env
+node_modules/
