@@ -25,7 +25,7 @@ function StudentFormPage() {
         setShowExtraInput(toggleState);
         
         if (!attendanceState) {
-          setError('Attendance is currently disabled.');
+          setError('Attendance is disabled.');
         }
       } catch (err) {
         console.error('Failed to initialize form', err);
@@ -115,7 +115,6 @@ function StudentFormPage() {
             <Users className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Student Attendance</h1>
-          {/* <p className="text-gray-600">Mark your attendance for today's session</p> */}
           <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-500">
             <Calendar className="w-4 h-4" />
             <span>{new Date().toLocaleString('en-US', { 

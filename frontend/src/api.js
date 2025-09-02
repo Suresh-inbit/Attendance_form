@@ -76,14 +76,14 @@ export const setToggleAttendance = async (newState) => {
   return data.state; // server should respond with { state: true/false }
 }
 
-export const getCount = async (Date) => {
-  const url = Date ? `${API_BASE}/attendance/count?date=${encodeURIComponent(Date)}` : `${API_BASE}/attendance/list`;
+export const getCount = async (date) => {
+  const url = date ? `${API_BASE}/attendance/count?date=${encodeURIComponent(date)}` : `${API_BASE}/attendance/list`;
   const res = await fetch(url);
   if (!res.ok) {
-    throw new Error('Failed to fetch toggle state');
+    throw new Error('Failed to fetch count of students');
   }
-  const count = await res.json();
-  return count;
+  const response = await res.json();
+  return response;
 };
 
 // Make API functions globally accessible for console testing

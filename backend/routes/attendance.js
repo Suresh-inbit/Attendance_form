@@ -54,7 +54,13 @@ router.post('/add', async (req, res) => {
     // Check duplicate IP for same date
     const duplicateIp = await Attendance.findOne({ ipAddress, attendanceDate: currentDate });
     const AllowedIP = process.env.ADMIN_IP;
+    /*
 
+    Could not get IP of student when hosted on vercel.
+    Public ip of multiple users are same...
+    Removing this feature, can add later.
+    
+    */
     // if (duplicateIp && (ipAddress !== AllowedIP && ipAddress !== '127.0.0.1')) {
     //   return res.status(409).json({ success: false, message: 'Proxy not allowed.' });
     // }

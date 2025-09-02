@@ -67,6 +67,4 @@ router.post('/attendance', async (req, res) => {
   }
 });
 
-// It's cleaner to just export the router itself.
-// If other modules need the toggle states, they should make an API call.
 module.exports = { router };
