@@ -32,6 +32,8 @@ function StudentFormPage() {
   useEffect(() => {
     if (rollNumber) {
       localStorage.setItem(localRollNumberKey, rollNumber);
+      setLocalRollNumber(rollNumber);
+
     }
   }, [rollNumber, localRollNumberKey]);
   useEffect(() => {
