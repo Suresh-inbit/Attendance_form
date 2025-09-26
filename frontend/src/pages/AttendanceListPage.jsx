@@ -233,8 +233,8 @@ function AttendanceListPage() {
                 </div>
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"> 
                   <div className='pr-1'>
-                    <h3 className="font-medium text-gray-900">Click here to close attendance</h3>
-                    <p className="text-sm text-gray-600">Close only after everyone is done</p>
+                    <h3 className="font-medium text-gray-900">Click here to close Attendance</h3>
+                    <p className="text-sm text-gray-600">Only once a day!</p>
                     
                   </div>
                   <button
