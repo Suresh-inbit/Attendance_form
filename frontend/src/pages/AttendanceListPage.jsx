@@ -25,7 +25,7 @@ import {
 // Import your existing API functions
 import { getAttendanceList } from '../api';
 import { setToggleState, getToggleState } from '../api';
-import { setToggleAttendance, getToggleAttendance } from '../api';
+import { setToggleAttendance, getToggleAttendance, setCloseAttendance } from '../api';
 import { deleteAttendance } from '../api';
 
 // Import utility functions from your existing utils
@@ -89,7 +89,10 @@ function AttendanceListPage() {
     setSortKey(newSortKey);
     setSortDirection(newSortDirection);
   };
-
+  const handleCloseAttendance = async () => {
+    handleToggleAttendance();
+    setCloseAttendance()
+  };
   const filteredList = useMemo(() => {
     if (!searchQuery) return list;
     return list.filter(student =>
@@ -193,7 +196,7 @@ function AttendanceListPage() {
           {/* Settings Panel */}
           {showSettings && (
             <div className="mt-6 pt-6 border-t border-gray-200 animate-in slide-in-from-top-2 duration-300">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div>
                     <h3 className="font-medium text-gray-900">Additional Input Field</h3>
@@ -225,6 +228,26 @@ function AttendanceListPage() {
                     ) : (
                       <ToggleLeft className="w-8 h-8 text-gray-400" />
                     )}
+                  </button>
+                  
+                </div>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"> 
+                  <div className='pr-1'>
+                    <h3 className="font-medium text-gray-900">Click here to close attendance</h3>
+                    <p className="text-sm text-gray-600">Close only after everyone is done</p>
+                    
+                  </div>
+                  <button
+                    onClick={handleCloseAttendance}
+                    disabled={!takeAttendance} // Disable if already closed
+                    className={`inline-flex items-center justify-center gap-8 px-4 py-2 text-sm font-medium rounded-xl transition-colors ${
+                      takeAttendance
+                        ? 'bg-red-500 hover:bg-red-600 text-white shadow-md'
+                        : 'bg-gray-400  cursor-not-allowed'
+                    }`}
+                  >
+                    {/* <Lock className="w-4 h-4" /> */}
+                    <b >Close</b>
                   </button>
                 </div>
               </div>

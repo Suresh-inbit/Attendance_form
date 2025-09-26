@@ -86,6 +86,28 @@ export const getCount = async (date) => {
   return response;
 };
 
+export const getLeaveCount = async (rollNumber) => {
+  const url = `${API_BASE}/attendance/leave-count?rollNumber=${encodeURIComponent(rollNumber)}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error('Failed to fetch present days');
+  }
+  const response = await res.json();
+  return response;
+};
+
+export const setCloseAttendance = async () => {
+  const res = await fetch(`${API_BASE}/attendance/close-attendance`, {
+    method: 'POST',
+  });
+  if (!res.ok) {
+    throw new Error('Failed to close attendance');
+  }
+  const data = await res.json();
+  console.log(data);
+  return data.state; // server should respond with { state: true/false }
+};
+  
 // Make API functions globally accessible for console testing
 // window.addAttendance = addAttendance;
 // window.getAttendanceList = getAttendanceList;
@@ -96,3 +118,4 @@ export const getCount = async (date) => {
 // window.getToggleAttendance = getToggleAttendance;
 // window.setToggleAttendance = setToggleAttendance;
 // window.getCount = getCount;
+window.setCloseAttendance = setCloseAttendance

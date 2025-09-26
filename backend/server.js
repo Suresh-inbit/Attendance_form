@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const attendanceRoutes = require('./routes/attendance');
-const { router: toggleRoutes } = require('./routes/toggle');
-
+const toggleRoutes  = require('./routes/toggle');
+const sheets = require('./routes/sheet');
 const app = express();
 
 // Middlewares
@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/attendance', attendanceRoutes);
+app.use('/api/attendance', attendanceRoutes, sheets);
 app.use('/api/toggle', toggleRoutes);
 
 app.get('/', (req, res) => {

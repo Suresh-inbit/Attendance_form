@@ -6,6 +6,23 @@ require('dotenv').config();
 // mongoose.connect(process.env.MONGO_URI);
 
 // Define schema
+const attendanceCountSchema = new mongoose.Schema({
+  rollNumber: {
+    type: String,
+    required: true,
+    unique: true,
+    default: 'DEFAULT_VALUE',
+  },
+  count: {
+    type: Number,
+    required: true,
+    default: -1,
+  },
+});
+
+const AttendanceCount = mongoose.model('AttendanceCount', attendanceCountSchema);
+
+// Attendance Entry Schema
 const attendanceSchema = new mongoose.Schema({
   rollNumber: {
     type: String,
@@ -45,4 +62,4 @@ attendanceSchema.index({ rollNumber: 1, attendanceDate: 1 }, { unique: true });
 
 const Attendance = mongoose.model('Attendance', attendanceSchema);
 
-module.exports = Attendance;
+module.exports = {Attendance, AttendanceCount};

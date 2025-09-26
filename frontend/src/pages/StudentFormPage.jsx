@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { User, Hash, MessageSquare, CheckCircle, AlertCircle, Loader2, Calendar, Users } from 'lucide-react';
-import { addAttendance } from '../api';
+import { addAttendance, getLeaveCount } from '../api';
 import {setToggleState, getToggleState} from '../api';
 import { getToggleAttendance } from '../api';
 
@@ -11,8 +11,63 @@ function StudentFormPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [leaveCount, setLeaveCount] = useState(0);
   const [showExtraInput, setShowExtraInput] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [localRollNumber, setLocalRollNumber] = useState('');
+  const [totalCount, setTotalCount] = useState(0);
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const localStorageKey = `attendance_${today}`;
+  const localRollNumberKey = `rollNumber`;
+
+  useEffect(() => {
+    const storedRollNumber = localStorage.getItem(localRollNumberKey);
+    if (storedRollNumber) {
+      setLocalRollNumber(storedRollNumber);
+        // setRollNumber(storedRollNumber); // Pre-fill the roll number field
+    }
+    }, [localRollNumberKey]);
+
+  useEffect(() => {
+    if (rollNumber) {
+      localStorage.setItem(localRollNumberKey, rollNumber);
+    }
+  }, [rollNumber, localRollNumberKey]);
+  useEffect(() => {
+    const alreadySubmitted = localStorage.getItem(localStorageKey);
+    if (alreadySubmitted) {
+      setIsSubmitted(true);
+    }
+  }, [localStorageKey]);
+
+  const fetchLeaveCount = async (rollNum) => {
+  if (!rollNum) {
+    console.warn('No roll number provided for leave count fetch');
+    return;
+  }
+  
+  setError('');
+  
+  try {
+    const res = await getLeaveCount(rollNum);
+    console.log('Leave count response:', res);
+    if (res.success) {
+      setLeaveCount(res.count);
+      setTotalCount(res.totalCount);
+    } else {
+      setError('Failed to fetch leave count.');
+    }
+  } catch (error) {
+    setError('Network error fetching leave count.');
+  }
+};
+useEffect(() => {
+  const storedRollNumber = rollNumber || localStorage.getItem(localRollNumberKey);
+  if (isSubmitted) {
+    fetchLeaveCount(storedRollNumber);
+  }
+}, [isSubmitted, rollNumber]);
 
   useEffect(() => {
     const initializeForm = async () => {
@@ -78,23 +133,45 @@ function StudentFormPage() {
       const res = await addAttendance(rollNumber, name, answer);
       if (res.success) {
         setSuccess('Attendance submitted successfully!');
-        // Reset form after successful submission
+        // Store submission status in localStorage
+        localStorage.setItem(localStorageKey, 'true');
+        setIsSubmitted(true);
+        // Reset form after a brief delay to show the success message
         setTimeout(() => {
           setRollNumber('');
           setName('');
           setAnswer('');
           setSuccess('');
         }, 2000);
-      } else {
+      } 
+      else if (res.message === 'Roll number already marked present.') {
+          setError(res.message);
+          // Also set the local flag to prevent further attempts
+          localStorage.setItem(localStorageKey, 'true');
+          setIsSubmitted(true);
+          console.log("Attendance already marked");
+      }
+      else {
         setError(res.message || 'Submission failed. Please try again.');
       }
     } catch (err) {
       setError('Network error. Please check your connection and try again.');
     } finally {
-      setLoading(false);
+      // Add a 3-second delay before hiding the loading state.
+      // This ensures the user sees the success/error message for a moment.
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000);
     }
   };
-
+  // if (isSubmitted) {
+  //       return (
+  //           <div>
+  //               <h2>✅ Thank You!</h2>
+  //               <p>Your attendance for today has already been recorded.</p>
+  //           </div>
+  //       );
+  //   }
   if (isInitializing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -130,6 +207,9 @@ function StudentFormPage() {
 
         {/* Main Form Card */}
         <div className="bg-white rounded-2xl shadow-xl p-10 border border-gray-100">
+        {!isSubmitted && (
+            
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Roll Number Input */}
             <div className="space-y-2">
@@ -212,7 +292,7 @@ function StudentFormPage() {
                 <span className="text-green-700 text-sm">{success}</span>
               </div>
             )}
-
+            
             {/* Submit Button */}
             <button
               type="submit"
@@ -230,6 +310,34 @@ function StudentFormPage() {
               )}
             </button>
           </form>
+        )}
+        {isSubmitted && (
+          <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl mb-6 animate-in slide-in-from-top-2 duration-300">
+            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+            <span className="text-green-700 text-sm">Your attendance for today has already been recorded.</span>
+          </div>
+            
+          )}
+        {isSubmitted && (
+          <div
+            className={`text-center text-bold text-sm mb-4 font-semibold border rounded-xl p-4 
+              ${leaveCount<0?"text-red-600 bg-yellow-50":leaveCount/totalCount > 0.25 
+                ? "text-red-600 bg-red-50" 
+                : "text-green-600 bg-green-50"}`
+            }
+          >
+            {leaveCount<0 ? "Did you enter correct Roll Number?" :
+            leaveCount/totalCount > 0.25
+              ? <>
+                  ⚠️ Please attend class regularly! <br />
+                  Leave taken: {leaveCount} days
+                  <br />
+                  Attendance percentage: {totalCount > 0 ? (((totalCount - leaveCount) / totalCount) * 100).toFixed(2) : '0'}%
+                </>
+              : `Leave taken: ${leaveCount} days`}
+          </div>
+        )}
+
         </div>
 
         {/* Footer */}
@@ -238,9 +346,12 @@ function StudentFormPage() {
             Having trouble? Contact your administrator for assistance.
           </p>
         </div> */}
+          
       </div>
+      
     </div>
   );
+  
 }
 
 export default StudentFormPage;

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { getAllRecords } from '../api';
-import {deleteAttendance} from '../api';
+import { getAllRecords , deleteAttendance} from '../api';
 export default function AllRecordsPage() {
   const [records, setRecords] = useState([]);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  const [date, setDate] = useState('');
+  const [ipAddress, setIpAddress] = useState('');
   const fetchList = async () => {
     setLoading(true);
     setError('');
@@ -52,17 +52,35 @@ export default function AllRecordsPage() {
   if (records.length === 0) return <div className="p-4">No records found.</div>;
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">All Attendance Records</h1>
+    <div className="p-4 bg-green-100 ">
+      <h1 className="text-2xl font-bold mb-4">All Attendance Records</h1> 
+      {/* <div className='inline-flex mb-4 items-center gap-2'>
+        Enter Date and IP:
+        <input
+          type="date"
+          id="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="border rounded px-2 py-1"
+        />
+        <input
+          type="text"
+          id="ip"
+          placeholder="IP Address"
+          value={ipAddress}
+          onChange={(e) => setIpAddress(e.target.value)}
+          className="border rounded px-2 py-1"
+        />
+        <button
+          onClick={() => handleDelete('', date, ipAddress)}
+          className="bg-red-300 gap-4 px-8 text-center rounded hover:bg-red-600 transition"
+        >
+          Delete
+        </button>
+      </div> */}
 
-      {/* {successMessage && (
-        <div className="mb-4 p-2 bg-green-100 border border-green-400 text-green-800 rounded">
-          {successMessage}
-        </div>
-      )} */}
-
-      <div className="overflow-x-auto">
-        <table className="min-w-max w-full border text-left">
+      <div className="overflow-x-auto bg-white">
+        <table className="min-w-max w-full border text-left rounded border-radius-lg">
           <thead className="bg-gray-300">
             <tr>
               {columns.map((col) => (
@@ -79,11 +97,13 @@ export default function AllRecordsPage() {
                     {formatCellValue(record[col])}
                   </td>
                 ))}
-                <td className='text-center'> <button
-                          onClick={() => handleDelete(record.rollNumber, record.attendanceDate, record.ipAddress)}
-                          className="bg-red-300 px-2 text-center rounded hover:bg-red-600 transition">
-                          <p>Delete</p>
-                      </button>        
+                <td className='text-center'>
+                  <button
+                    onClick={() => handleDelete(record.rollNumber, record.attendanceDate, record.ipAddress)}
+                    className="bg-red-300 px-2 text-center rounded hover:bg-red-600 transition"
+                  >
+                    <p>Delete</p>
+                  </button>        
                 </td>
               </tr>
             ))}

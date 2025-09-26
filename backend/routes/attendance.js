@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const Attendance = require('../models/index'); // model we converted
+const {Attendance, AttendanceCount} = require('../models/index'); 
 const os = require('os');
 const AppState = require('../models/appState');
-
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { JWT } = require('google-auth-library');
 
 // Validation helpers
 function isValidRollNumber(rollNumber) {
@@ -74,7 +75,16 @@ router.post('/add', async (req, res) => {
       attendanceDate: currentDate,
       timestamp: currentTime,
     });
-
+    try {
+          const record = await AttendanceCount.findOne({rollNumber});
+          if (record) {
+            record.count +=1;  // Increment count
+            await record.save();
+          }
+    }
+    catch (error) {
+          console.error('Error updating Attendance Count:', error);
+    }
     await newEntry.save();
     res.status(200).json({ success: true, message: 'Attendance added.' });
 
@@ -127,19 +137,20 @@ router.get('/list-all', async (req, res) => {
 // POST /api/attendance/delete
 router.post('/delete', async (req, res) => {
   const { rollNumber, date, ipAddress } = req.body;
-  if (!rollNumber || !date) {
-    return res.status(400).json({ success: false, message: 'Roll number and date are required.' });
+  if (!rollNumber && !date) {
+    return res.status(400).json({ success: false, message: 'Roll number or date is required.' });
   }
 
   try {
-    let deleted = await Attendance.findOneAndDelete({ rollNumber, attendanceDate: date });
+    let deleted = await Attendance.findOneAndDelete({ rollNumber, attendanceDate: date , ipAddress: ipAddress});
     if (deleted) {
       return res.status(200).json({ success: true, message: 'Attendance record deleted.' });
     }
-
-    deleted = await Attendance.findOneAndDelete({ ipAddress, attendanceDate: date });
-    if (deleted) {
-      return res.status(200).json({ success: true, message: 'Attendance record deleted by IP.' });
+    
+    // Delete all records matching the criteria
+    const deleteResult = await Attendance.deleteMany({ attendanceDate: date, ipAddress: ipAddress });
+    if (deleteResult.deletedCount > 0) {
+      return res.status(200).json({ success: true, message: `${deleteResult.deletedCount} attendance record(s) deleted.` });
     }
 
     return res.status(404).json({ success: false, message: 'Attendance record not found.' });
@@ -149,5 +160,26 @@ router.post('/delete', async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
+router.post('/close-attendance', async (req, res) => {
+  try {
+    const IST_OFFSET_MINUTES = 330;
+    const now = new Date();
+    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const istTime = new Date(utcTime + (IST_OFFSET_MINUTES * 60000));
+    const currentDate = istTime.toISOString().split('T')[0];
 
+    const allCounts = await AttendanceCount.find({});
+    for (const record of allCounts) {
+      const present = await Attendance.findOne({ rollNumber: record.rollNumber, attendanceDate: currentDate });
+      if (!present) {
+        record.count += 1;
+        await record.save();
+      }
+    }
+    res.status(200).json({ success: true, message: 'Attendance counts updated for absentees.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
 module.exports = router;
