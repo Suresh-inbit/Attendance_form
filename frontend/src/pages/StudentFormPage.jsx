@@ -1,5 +1,5 @@
 import React, { useState, useEffect, use } from 'react';
-import { User, Hash, MessageSquare, CheckCircle, AlertCircle, Loader2, Calendar, Users } from 'lucide-react';
+import { User, Hash, MessageSquare, CheckCircle, AlertCircle, Loader2, Calendar, Users, TriangleAlert, CalendarDays} from 'lucide-react';
 import { addAttendance, getLeaveCount } from '../api';
 import {setToggleState, getToggleState} from '../api';
 import { getToggleAttendance } from '../api';
@@ -311,30 +311,40 @@ useEffect(() => {
             </button>
           </form>
         )}
+        
         {isSubmitted && (
-          <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl mb-6 animate-in slide-in-from-top-2 duration-300">
-            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-            <span className="text-green-700 text-sm">Your attendance for today has already been recorded.</span>
-          </div>
-            
-          )}
-        {isSubmitted && (
-          <div
-            className={`text-center text-bold text-sm mb-4 font-semibold border rounded-xl p-4 
-              ${leaveCount<0?"text-red-600 bg-yellow-50":leaveCount/totalCount > 0.25 
-                ? "text-red-600 bg-red-50" 
-                : "text-green-600 bg-green-50"}`
-            }
-          >
-            {leaveCount<0 ? "Did you enter correct Roll Number?" :
-            leaveCount/totalCount > 0.25
-              ? <>
-                  ⚠️ Please attend class regularly! <br />
-                  Leave taken: {leaveCount} days
-                  <br />
-                  Attendance percentage: {totalCount > 0 ? (((totalCount - leaveCount) / totalCount) * 100).toFixed(2) : '0'}%
-                </>
-              : `Leave taken: ${leaveCount} days`}
+          // Display Roll Number if available
+          <div className="">
+            <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl mb-4 animate-in slide-in-from-top-2 duration-300">
+              <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+              <span className="text-green-700 text-sm">Your attendance for today has already been marked.</span>
+            </div>  
+            <div className="flex items-center mb-4 gap-3 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
+              <Hash className="h-4 w-4 text-green-500 flex-shrink-0" />
+              <span>Roll Number: {localRollNumber}</span>
+            </div>
+            <div
+              className={` text-bold text-sm mb-4 font-semibold border rounded-xl p-4 
+                ${leaveCount<0?"text-red-600 bg-yellow-50 border-yellow-200":leaveCount/totalCount > 0.25 
+                  ? "text-red-600 bg-red-50 border-red-200" 
+                  : "text-green-600 bg-green-50 border-green-200"}`
+              }
+            >
+              {leaveCount<0 
+                ? <div className="flex gap-3 ">
+                  <TriangleAlert className="h-5 w-5 text-red-500 flex-shrink-0"/>
+                  Did you enter correct Roll Number? 
+                  </div >:
+              leaveCount/totalCount > 0.25
+                ? <div className='flex items-center gap-3'>
+                    <TriangleAlert className="h-5 w-5 text-red-500 "/>
+                    Please attend class regularly! <br />
+                    Leave taken: {leaveCount} days
+                    <br />
+                    Attendance percentage: {totalCount > 0 ? (((totalCount - leaveCount) / totalCount) * 100).toFixed(2) : '0'}%
+                  </div>
+                : `Leave taken: ${leaveCount} days`}
+            </div>
           </div>
         )}
 
