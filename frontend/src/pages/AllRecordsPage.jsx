@@ -52,7 +52,7 @@ export default function AllRecordsPage() {
   if (records.length === 0) return <div className="p-4">No records found.</div>;
 
   return (
-    <div className="p-4 bg-green-100 ">
+    <div className="p-4 bg-blue-100 ">
       <h1 className="text-2xl font-bold mb-4">All Attendance Records</h1> 
       {/* <div className='inline-flex mb-4 items-center gap-2'>
         Enter Date and IP:
