@@ -166,24 +166,17 @@ function StudentFormPage() {
       }, 3000);
     }
   };
-  // if (isSubmitted) {
-  //       return (
-  //           <div>
-  //               <h2>✅ Thank You!</h2>
-  //               <p>Your attendance for today has already been recorded.</p>
-  //           </div>
-  //       );
-  //   }
-  // if (isInitializing) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-  //       <div className="text-center">
-  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-800 mx-auto mb-4"></div>
-  //         <p className="text-gray-600">Loading attendance form...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-800 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading attendance form...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
