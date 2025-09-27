@@ -1,5 +1,5 @@
 import React, { useState, useEffect, use } from 'react';
-import { User, Hash, MessageSquare, CheckCircle, AlertCircle, Loader2, Calendar, Users, TriangleAlert, CalendarDays} from 'lucide-react';
+import { User, Hash, MessageSquare, CheckCircle, AlertCircle, Loader2, Calendar, Users, TriangleAlert, CalendarDays, CalendarX2} from 'lucide-react';
 import { addAttendance, getLeaveCount } from '../api';
 import {setToggleState, getToggleState} from '../api';
 import { getToggleAttendance } from '../api';
@@ -174,16 +174,16 @@ useEffect(() => {
   //           </div>
   //       );
   //   }
-  if (isInitializing) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading attendance form...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (isInitializing) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-800 mx-auto mb-4"></div>
+  //         <p className="text-gray-600">Loading attendance form...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
@@ -317,7 +317,7 @@ useEffect(() => {
         {isSubmitted && (
           // Display Roll Number if available
           <div className="">
-            <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl mb-4 animate-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl mb-4 transition-all animate-in slide-in-from-left-2 duration-400">
               <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
               <span className="text-green-700 text-sm">Your attendance for today has already been marked.</span>
             </div>  
@@ -332,7 +332,9 @@ useEffect(() => {
                   : "text-green-600 bg-green-50 border-green-200"}`
               }
             >
-              {leaveCount<0 
+              {leaveCount==0 &&totalCount==0
+                ? "Loading...":
+              leaveCount<0 
                 ? <div className="flex gap-3 ">
                   <TriangleAlert className="h-5 w-5 text-red-500 flex-shrink-0"/>
                   Did you enter correct Roll Number? 
@@ -345,7 +347,12 @@ useEffect(() => {
                     <br />
                     Attendance percentage: {totalCount > 0 ? (((totalCount - leaveCount) / totalCount) * 100).toFixed(2) : '0'}%
                   </div>
-                : `Leave taken: ${leaveCount} days`}
+                : 
+                <div className='flex gap-3 text-green-700'>  <CalendarX2 className="h-5 w-5 text-green-500 "/>
+                
+                Leave taken: {leaveCount} days
+                </div>
+                }
             </div>
           </div>
         )}
@@ -353,11 +360,11 @@ useEffect(() => {
         </div>
 
         {/* Footer */}
-        {/* <div className="text-center mt-8">
+        <div className="text-center mt-8">
           <p className="text-sm text-gray-500">
-            Having trouble? Contact your administrator for assistance.
+            Having trouble? Contact TA.
           </p>
-        </div> */}
+        </div>
           
       </div>
       
