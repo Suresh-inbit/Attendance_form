@@ -199,7 +199,7 @@ function AttendanceListPage() {
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-3 items-center gap-3">
               <button 
                 onClick={()=>setShowNote(!showNote)}
                 className='inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black-700 rounded-xl transition-colors'
@@ -227,30 +227,44 @@ function AttendanceListPage() {
           </div>
           {showNote && (
             <div className="mt-6 pt-6 border-t border-gray-200 animate-in slide-in-from-top-2 duration-300"> 
-              <div className="flex gap-3 bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-large text-gray-600 mt-2">Enter Note:</h3>
-                <input
-                  type="text"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Type your note here..."
-                  className="flex px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  onClick={handleSetnote}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-colors shadow-lg hover:shadow-xl"
-                > 
-                  <SendIcon className='w-4 h-4 text-green-50'></SendIcon>
-                  <span>Send</span>
-                </button>
-              {noteConfirmation && (
-                <div className={`mt-1 p-2 text-sm ${noteConfirmation.includes('Failed') ? 'text-red-600' : 'bg-green-100 rounded-xl border border-green-300 text-green-600'} animate-in fade-in-50 duration-200`}>
-                  {noteConfirmation}
+              <div className="flex flex-col sm:flex-row gap-3 bg-gray-50 p-4 rounded-lg">
+                {/* Label */}
+                <h3 className="font-medium text-gray-600 sm:mt-2 shrink-0">Enter Note:</h3>
+                
+                {/* Input + Button */}
+                <div className="flex flex-col sm:flex-row gap-3 w-sm">
+                  <input
+                    type="text"
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Type your note here..."
+                    className=" px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    onClick={handleSetnote}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-colors shadow-lg hover:shadow-xl w-full sm:w-auto"
+                  > 
+                    <SendIcon className="w-4 h-4 text-green-50" />
+                    <span>Send</span>
+                  </button>
                 </div>
-              )}
+
+                {/* Confirmation Message */}
+                {noteConfirmation && (
+                  <div
+                    className={`mt-2 sm:mt-0 sm:ml-3 p-2 text-sm ${
+                      noteConfirmation.includes('Failed')
+                        ? 'text-red-600'
+                        : 'bg-green-100 rounded-xl border border-green-300 text-green-600'
+                    } animate-in fade-in-50 duration-200`}
+                  >
+                    {noteConfirmation}
+                  </div>
+                )}
               </div>
             </div>
           )}
+
            
           {/* Settings Panel */}
           {showSettings && (
