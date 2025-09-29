@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 // Import your existing API functions
-import { getAttendanceList, setNoteToBackend } from '../api';
+import { getAttendanceList, getNoteFromBackend, setNoteToBackend } from '../api';
 import { setToggleState, getToggleState } from '../api';
 import { setToggleAttendance, getToggleAttendance, setCloseAttendance } from '../api';
 import { deleteAttendance } from '../api';
@@ -82,7 +82,21 @@ function AttendanceListPage() {
       setShowSettings(false);
     }
   }, [showNote]);
-  
+
+  useEffect(() => {
+    async function fetchNote() {
+      try {
+        const res = await getNoteFromBackend();
+        if (res) {
+          setNote(res);
+        }
+      } catch (err) {
+        // Optionally handle error
+        console.error('Error fetching note from backend:', err);
+      }
+    }
+    fetchNote();
+  }, []);
   useEffect(() => {
     Promise.all([getToggleAttendance(), getToggleState()])
       .then(([attendanceState, extraInputState]) => {

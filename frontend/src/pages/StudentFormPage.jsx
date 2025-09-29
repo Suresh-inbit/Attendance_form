@@ -22,7 +22,7 @@ function StudentFormPage() {
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   const localStorageKey = `attendance_${today}`;
   const localRollNumberKey = `rollNumber`;
-
+  const tolerance = 0.2; // 20% tolerance
   useEffect(() => {
     const storedRollNumber = localStorage.getItem(localRollNumberKey);
     if (storedRollNumber) {
@@ -341,7 +341,7 @@ function StudentFormPage() {
               </div>
               <div
                 className={` text-bold text-sm mb-4 font-semibold border rounded-xl p-4 
-                ${leaveCount < 0 ? "text-red-600 bg-yellow-50 border-yellow-200" : leaveCount / totalCount > 0.25
+                ${leaveCount < 0 ? "text-red-600 bg-yellow-50 border-yellow-200" : leaveCount / totalCount > tolerance
                     ? "text-red-600 bg-red-50 border-red-200"
                     : "text-green-600 bg-green-50 border-green-200"}`
                 }
@@ -353,7 +353,7 @@ function StudentFormPage() {
                       <TriangleAlert className="h-5 w-5 text-red-500 flex-shrink-0" />
                       Did you enter correct Roll Number?
                     </div > :
-                    leaveCount / totalCount > 0.25
+                    leaveCount / totalCount > tolerance
                       ? <div className='flex items-center gap-3'>
                         <TriangleAlert className="h-5 w-5 text-red-500 " />
                         Please attend class regularly! <br />
