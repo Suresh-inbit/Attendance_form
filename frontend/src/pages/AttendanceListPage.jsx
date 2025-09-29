@@ -45,7 +45,7 @@ function AttendanceListPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [note, setNote] = useState('');
-  const [showNote, setShowNote] = useState(true);
+  const [showNote, setShowNote] = useState(false);
   const [noteConfirmation, setNoteConfirmation] = useState('');
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
