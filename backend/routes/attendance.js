@@ -75,16 +75,7 @@ router.post('/add', async (req, res) => {
       attendanceDate: currentDate,
       timestamp: currentTime,
     });
-    try {
-          const record = await AttendanceCount.findOne({rollNumber});
-          if (record) {
-            record.count +=1;  // Increment count
-            await record.save();
-          }
-    }
-    catch (error) {
-          console.error('Error updating Attendance Count:', error);
-    }
+    
     await newEntry.save();
     res.status(200).json({ success: true, message: 'Attendance added.' });
 

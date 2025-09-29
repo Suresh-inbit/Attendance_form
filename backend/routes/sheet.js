@@ -80,29 +80,7 @@ router.get('/leave-count', async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
-
-// // POST /api/attendance/leave-count?rollNumber=...&count=...
-// router.post('/leave-count', async (req, res) => {
-//   try {
-//     const { rollNumber, count } = req.body;
-    
-//     if (!rollNumber || count == null || isNaN(count) || count < 0) {
-//       return res.status(400).json({ success: false, message: 'Invalid input' });
-//     }
-
-//     const record = await AttendanceCount.findOneAndUpdate(
-//       { rollNumber },
-//       { count },
-//       { new: true, upsert: true }
-//     );
-
-//     res.json({ success: true, rollNumber, count: record.count });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: 'Server error' });
-//   }
-// });
-
-// NEW: POST /api/attendance/sync-from-sheet - Sync attendance count from Google Sheets
+// POST /api/attendance/sync-from-sheet - Sync attendance count from Google Sheets
 router.post('/sync-from-sheet', async (req, res) => {
   try {
     // Use your actual sheet ID and name
@@ -123,7 +101,7 @@ router.post('/sync-from-sheet', async (req, res) => {
   }
 });
 
-// NEW: GET /api/attendance/sheet-preview - Preview data from Google Sheets
+// GET /api/attendance/sheet-preview - Preview data from Google Sheets
 router.get('/sheet-preview', async (req, res) => {
   try {
     // Use your actual sheet ID and name
@@ -154,7 +132,7 @@ router.get('/sheet-preview', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
+// GET /api/attendance/test-sheets - Test Google Sheets connection
 router.get('/test-sheets', async (req, res) => {
   try {
     console.log('Testing Google Sheets connection...');

@@ -14,6 +14,10 @@ const AppStateSchema = new mongoose.Schema({
     toggleAttendance: {
         type: Boolean,
         default: true
+    }, 
+    note: {
+        type: String,
+        default: ""
     }
 });
 

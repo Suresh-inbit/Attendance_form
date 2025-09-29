@@ -1,8 +1,8 @@
 import React, { useState, useEffect, use } from 'react';
-import { User, Hash, MessageSquare, CheckCircle, AlertCircle, Loader2, Calendar, Users, TriangleAlert, CalendarDays, CalendarX2 } from 'lucide-react';
+import { User, Hash, MessageSquare, CheckCircle, AlertCircle, Loader2, Calendar, Users, TriangleAlert, CalendarDays, CalendarX2, Info } from 'lucide-react';
 import { addAttendance, getLeaveCount } from '../api';
 import { setToggleState, getToggleState } from '../api';
-import { getToggleAttendance } from '../api';
+import { getToggleAttendance, getNoteFromBackend } from '../api';
 
 function StudentFormPage() {
   const [rollNumber, setRollNumber] = useState('');
@@ -17,6 +17,8 @@ function StudentFormPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [localRollNumber, setLocalRollNumber] = useState('');
   const [totalCount, setTotalCount] = useState(0);
+  const [noteVisible, setNoteVisible] = useState(false);
+  const [TA_NOTE, setNote] = useState("");
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   const localStorageKey = `attendance_${today}`;
   const localRollNumberKey = `rollNumber`;
@@ -70,6 +72,18 @@ function StudentFormPage() {
       fetchLeaveCount(storedRollNumber);
     }
   }, [isSubmitted, rollNumber]);
+
+  useEffect(() => {
+    const fetchNote = async () => {
+      const noteFromBackend = await getNoteFromBackend(); // Replace with actual function to fetch note
+      setNote(noteFromBackend);
+      console.log("Note from backend:", noteFromBackend);
+      if (noteFromBackend && noteFromBackend.trim() !== "") {
+        setNoteVisible(true);
+      }
+    };
+    fetchNote();
+  }, []);
 
   useEffect(() => {
     const initializeForm = async () => {
@@ -199,6 +213,13 @@ function StudentFormPage() {
             })}</span>
           </div>
         </div>
+        {/* Note Section */}
+        {noteVisible && <div className='text-center mb-6 text-gray-600 bg-yellow-100 border border-yellow-400 rounded-xl p-4'>
+            <div id="info">
+              <Info className="h-5 w-5 text-yellow-500 inline-block mr-2" />
+              <span className="font-semibold">Note:</span> {TA_NOTE}
+            </div>
+        </div>}
 
         {/* Main Form Card */}
         <div className="bg-white rounded-2xl shadow-xl p-10 border border-gray-100">

@@ -67,4 +67,27 @@ router.post('/attendance', async (req, res) => {
   }
 });
 
+// Get NOTE from user
+router.post('/set-note', async (req, res) => {
+  if (typeof req.body.note === 'string') {
+    try {
+        req.appState.note = req.body.note;
+        await req.appState.save();
+        res.status(200).json({ success: true, note: req.appState.note });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to update note' });
+    }
+  } else {
+    res.status(400).json({ success: false, message: 'Invalid note value' });
+  }
+});
+
+// Get NOTE from user
+router.get('/get-note', async (req, res) => {
+    try {
+        res.status(200).json({ note: req.appState.note });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error while fetching note.' });
+    }
+});
 module.exports =  router ;

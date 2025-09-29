@@ -107,7 +107,28 @@ export const setCloseAttendance = async () => {
   console.log(data);
   return data.state; // server should respond with { state: true/false }
 };
-  
+export const getNoteFromBackend = async () => {
+  const res = await fetch(`${API_BASE}/toggle/get-note`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch note from backend');
+  }
+  const data = await res.json();
+  console.log("Note fetched from backend:", data.note);
+  return data.note; // server should respond with { note: "Your note here" }
+};
+export const setNoteToBackend = async (note) => {
+  const res = await fetch(`${API_BASE}/toggle/set-note`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ note }),
+  });
+  if (!res.ok) {
+    throw new Error('Failed to set note to backend');
+  }
+  const data = await res.json();
+  console.log("Note set to backend:", data.note);
+  return data.note; // server should respond with { note: "Your note here" }
+}
 // Make API functions globally accessible for console testing
 // window.addAttendance = addAttendance;
 // window.getAttendanceList = getAttendanceList;

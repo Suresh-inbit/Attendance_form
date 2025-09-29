@@ -19,11 +19,15 @@ import {
   Eye,
   EyeOff,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  SendIcon,
+  Notebook,
+  BadgeInfo,
+  InfoIcon
 } from 'lucide-react';
 
 // Import your existing API functions
-import { getAttendanceList } from '../api';
+import { getAttendanceList, setNoteToBackend } from '../api';
 import { setToggleState, getToggleState } from '../api';
 import { setToggleAttendance, getToggleAttendance, setCloseAttendance } from '../api';
 import { deleteAttendance } from '../api';
@@ -40,7 +44,9 @@ function AttendanceListPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-
+  const [note, setNote] = useState('');
+  const [showNote, setShowNote] = useState(true);
+  const [noteConfirmation, setNoteConfirmation] = useState('');
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     today.setHours(today.getHours() + 6);
@@ -73,6 +79,26 @@ function AttendanceListPage() {
         setShowExtraInput(extraInputState);
       });
   }, []);
+ const handleSetnote = async () => {
+  try {
+    const res = await setNoteToBackend(note);
+    console.log('Note set successfully:', res);
+    setNoteConfirmation('Note sent successfully!');
+    
+    // Clear the confirmation message after 3 seconds
+    setTimeout(() => {
+      setNoteConfirmation('');
+    }, 3000);
+  } catch (err) {
+    console.error('Error setting note:', err);
+    setNoteConfirmation('Failed to send note');
+    
+    // Clear the error message after 3 seconds
+    setTimeout(() => {
+      setNoteConfirmation('');
+    }, 3000);
+  }
+};
 
   const handleToggleAttendance = async () => {
     const updatedState = await setToggleAttendance(!takeAttendance);
@@ -172,8 +198,15 @@ function AttendanceListPage() {
                 <p className="text-gray-600">Manage and track student attendance</p>
               </div>
             </div>
-
+            
             <div className="flex items-center gap-3">
+              <button 
+                onClick={()=>setShowNote(!showNote)}
+                className='inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black-700 rounded-xl transition-colors'
+              > <InfoIcon className='w-4 h-4 '></InfoIcon> 
+                <span>Note</span>
+              </button>
+
               <button
                 onClick={() => setShowSettings(!showSettings)}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
@@ -192,7 +225,33 @@ function AttendanceListPage() {
               </button>
             </div>
           </div>
-
+          {showNote && (
+            <div className="mt-6 pt-6 border-t border-gray-200 animate-in slide-in-from-top-2 duration-300"> 
+              <div className="flex gap-3 bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-large text-gray-600 mt-2">Enter Note:</h3>
+                <input
+                  type="text"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Type your note here..."
+                  className="flex px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  onClick={handleSetnote}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-colors shadow-lg hover:shadow-xl"
+                > 
+                  <SendIcon className='w-4 h-4 text-green-50'></SendIcon>
+                  <span>Send</span>
+                </button>
+              {noteConfirmation && (
+                <div className={`mt-1 p-2 text-sm ${noteConfirmation.includes('Failed') ? 'text-red-600' : 'bg-green-100 rounded-xl border border-green-300 text-green-600'} animate-in fade-in-50 duration-200`}>
+                  {noteConfirmation}
+                </div>
+              )}
+              </div>
+            </div>
+          )}
+           
           {/* Settings Panel */}
           {showSettings && (
             <div className="mt-6 pt-6 border-t border-gray-200 animate-in slide-in-from-top-2 duration-300">
