@@ -71,7 +71,18 @@ function AttendanceListPage() {
       alert('Network error while deleting.');
     }
   };
+  useEffect(() => {
+    if (showSettings && showNote) {
+      setShowNote(false);
+    }
+  }, [showSettings]);
 
+  useEffect(() => {
+    if (showNote && showSettings) {
+      setShowSettings(false);
+    }
+  }, [showNote]);
+  
   useEffect(() => {
     Promise.all([getToggleAttendance(), getToggleState()])
       .then(([attendanceState, extraInputState]) => {
