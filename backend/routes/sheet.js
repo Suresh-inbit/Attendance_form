@@ -2,8 +2,13 @@ const express = require('express');
 const router = express.Router();
 const {Attendance, AttendanceCount} = require('../models/index'); 
 const os = require('os');
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
+// const { GoogleSpreadsheet } = require('google-spreadsheet');
+let GoogleSpreadsheet; // placeholder
+
+(async () => {
+  ({ GoogleSpreadsheet } = await import('google-spreadsheet'));
+})();
 
 function isValidRollNumber(rollNumber) {
   return /^[a-zA-Z0-9]+$/.test(rollNumber);
