@@ -333,7 +333,7 @@ function StudentFormPage() {
             <div className="">
               <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl mb-4 transition-all animate-in slide-in-from-left-2 duration-400">
                 <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                <span className="text-green-700 text-sm">Attendance marked for today.</span>
+                <span className="text-green-700 text-sm">Your attendance for today has already been marked.</span>
               </div>
               <div className="flex items-center mb-4 gap-3 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
                 <Hash className="h-4 w-4 text-green-500 flex-shrink-0" />
