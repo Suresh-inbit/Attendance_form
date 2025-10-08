@@ -1,8 +1,7 @@
-import React, { useState, useEffect, use } from 'react';
-import { User, Hash, MessageSquare, CheckCircle, AlertCircle, Loader2, Calendar, Users, TriangleAlert, CalendarDays, CalendarX2, Info } from 'lucide-react';
-import { addAttendance, getLeaveCount } from '../api';
-import { setToggleState, getToggleState } from '../api';
-import { getToggleAttendance, getNoteFromBackend } from '../api';
+import React, { useState, useEffect } from 'react';
+import { User, Hash, MessageSquare, CheckCircle, AlertCircle, Loader2, Calendar, Users, TriangleAlert, CalendarX2, Info } from 'lucide-react';
+
+import { addAttendance, getLeaveCount, getToggleState, getToggleAttendance, getNoteFromBackend } from '../api';
 
 function StudentFormPage() {
   const [rollNumber, setRollNumber] = useState('');
@@ -19,84 +18,44 @@ function StudentFormPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [noteVisible, setNoteVisible] = useState(false);
   const [TA_NOTE, setNote] = useState("");
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const [attendanceEnabled, setAttendanceEnabled] = useState(true);
+  
+  const today = new Date().toISOString().split('T')[0];
   const localStorageKey = `attendance_${today}`;
   const localRollNumberKey = `rollNumber`;
-  const tolerance = 0.2; // 20% tolerance
-  useEffect(() => {
-    const storedRollNumber = localStorage.getItem(localRollNumberKey);
-    if (storedRollNumber) {
-      setLocalRollNumber(storedRollNumber);
-      // setRollNumber(storedRollNumber); // Pre-fill the roll number field
-    }
-  }, [localRollNumberKey]);
+  const tolerance = 0.2;
 
-  useEffect(() => {
-    if (rollNumber) {
-      localStorage.setItem(localRollNumberKey, rollNumber);
-      setLocalRollNumber(rollNumber);
-
-    }
-  }, [rollNumber, localRollNumberKey]);
-  useEffect(() => {
-    const alreadySubmitted = localStorage.getItem(localStorageKey);
-    if (alreadySubmitted) {
-      setIsSubmitted(true);
-    }
-  }, [localStorageKey]);
-
-  const fetchLeaveCount = async (rollNum) => {
-    if (!rollNum) {
-      console.warn('No roll number provided for leave count fetch');
-      return;
-    }
-
-    setError('');
-
-    try {
-      const res = await getLeaveCount(rollNum);
-      console.log('Leave count response:', res);
-      if (res.success) {
-        setLeaveCount(res.count);
-        setTotalCount(res.totalCount);
-      } else {
-        setError('Failed to fetch leave count.');
-      }
-    } catch (error) {
-      setError('Network error fetching leave count.');
-    }
-  };
-  useEffect(() => {
-    const storedRollNumber = rollNumber || localStorage.getItem(localRollNumberKey);
-    if (isSubmitted) {
-      fetchLeaveCount(storedRollNumber);
-    }
-  }, [isSubmitted, rollNumber]);
-
-  useEffect(() => {
-    const fetchNote = async () => {
-      const noteFromBackend = await getNoteFromBackend(); // Replace with actual function to fetch note
-      setNote(noteFromBackend);
-      console.log("Note from backend:", noteFromBackend);
-      if (noteFromBackend && noteFromBackend.trim() !== "") {
-        setNoteVisible(true);
-      }
-    };
-    fetchNote();
-  }, []);
-
+  // Initialize form and check attendance status
   useEffect(() => {
     const initializeForm = async () => {
       try {
-        const [toggleState, attendanceState] = await Promise.all([
+        const [toggleState, attendanceState, noteFromBackend] = await Promise.all([
           getToggleState(),
-          getToggleAttendance()
+          getToggleAttendance(),
+          getNoteFromBackend()
         ]);
 
         setShowExtraInput(toggleState);
+        setAttendanceEnabled(attendanceState);
+        setNote(noteFromBackend);
+        
+        if (noteFromBackend && noteFromBackend.trim() !== "") {
+          setNoteVisible(true);
+        }
 
         if (!attendanceState) {
-          setError('Attendance is disabled.');
+          setError('Attendance is currently disabled.');
+        }
+
+        // Check for existing submission (moved from separate useEffect)
+        const storedRollNumber = localStorage.getItem(localRollNumberKey);
+        if (storedRollNumber) {
+          setLocalRollNumber(storedRollNumber);
+        }
+
+        const alreadySubmitted = localStorage.getItem(localStorageKey);
+        if (alreadySubmitted && storedRollNumber) {
+          setIsSubmitted(true);
         }
       } catch (err) {
         console.error('Failed to initialize form', err);
@@ -109,8 +68,36 @@ function StudentFormPage() {
     initializeForm();
   }, []);
 
+  // Fetch leave count when submission status changes
+  useEffect(() => {
+    const fetchLeaveCount = async (rollNum) => {
+      if (!rollNum) {
+        console.warn('No roll number provided for leave count fetch');
+        return;
+      }
+
+      try {
+        const res = await getLeaveCount(rollNum);
+        console.log('Leave count response:', res);
+        if (res.success) {
+          setLeaveCount(res.count);
+          setTotalCount(res.totalCount);
+        } else {
+          setError('Failed to fetch leave count.');
+        }
+      } catch (error) {
+        console.error('Error fetching leave count:', error);
+        setError('Network error fetching leave count.');
+      }
+    };
+
+    if (isSubmitted && localRollNumber) {
+      fetchLeaveCount(localRollNumber);
+    }
+  }, [isSubmitted, localRollNumber]);
+
   const validate = () => {
-    if (!rollNumber) {
+    if (!rollNumber.trim()) {
       setError('Roll Number is required.');
       return false;
     }
@@ -122,7 +109,7 @@ function StudentFormPage() {
       setError('Roll Number must be at least 3 characters long.');
       return false;
     }
-    if (!name) {
+    if (!name.trim()) {
       setError('Name is required.');
       return false;
     }
@@ -130,7 +117,7 @@ function StudentFormPage() {
       setError('Name must contain only letters and spaces.');
       return false;
     }
-    if (name.length < 2) {
+    if (name.trim().length < 2) {
       setError('Name must be at least 2 characters long.');
       return false;
     }
@@ -139,6 +126,11 @@ function StudentFormPage() {
   };
 
   const handleSubmit = async () => {
+    if (!attendanceEnabled) {
+      setError('Attendance is disabled.');
+      return;
+    }
+
     if (!validate()) return;
 
     setLoading(true);
@@ -146,38 +138,33 @@ function StudentFormPage() {
     setSuccess('');
 
     try {
-      const res = await addAttendance(rollNumber, name, answer);
+      const res = await addAttendance(rollNumber.trim(), name.trim(), answer.trim());
       if (res.success) {
         setSuccess('Attendance submitted successfully!');
-        // Store submission status in localStorage
         localStorage.setItem(localStorageKey, 'true');
+        localStorage.setItem(localRollNumberKey, rollNumber.trim());
+        setLocalRollNumber(rollNumber.trim());
         setIsSubmitted(true);
-        // Reset form after a brief delay to show the success message
+        
         setTimeout(() => {
-          setRollNumber('');
-          setName('');
-          setAnswer('');
           setSuccess('');
-        }, 2000);
-      }
-      else if (res.message === 'Roll number already marked present.') {
+        }, 3000);
+      } else if (res.message === 'Roll number already marked present.') {
         setError(res.message);
-        // Also set the local flag to prevent further attempts
         localStorage.setItem(localStorageKey, 'true');
+        localStorage.setItem(localRollNumberKey, rollNumber.trim());
+        setLocalRollNumber(rollNumber.trim());
         setIsSubmitted(true);
-        console.log("Attendance already marked");
-      }
-      else {
+      } else {
         setError(res.message || 'Submission failed. Please try again.');
       }
     } catch (err) {
+      console.error('Submission error:', err);
       setError('Network error. Please check your connection and try again.');
     } finally {
-      // Add a 3-second delay before hiding the loading state.
-      // This ensures the user sees the success/error message for a moment.
       setTimeout(() => {
         setLoading(false);
-      }, 3000);
+      }, 1000);
     }
   };
 
@@ -213,21 +200,20 @@ function StudentFormPage() {
             })}</span>
           </div>
         </div>
-        {/* Note Section */}
-        {noteVisible && <div className='text-center mb-6 text-gray-600 bg-yellow-100 border border-yellow-400 rounded-xl p-4'>
+
+        {noteVisible && (
+          <div className='text-center mb-6 text-gray-600 bg-yellow-100 border border-yellow-400 rounded-xl p-4'>
             <div id="info">
               <Info className="h-5 w-5 text-yellow-500 inline-block mr-2" />
               <span className="font-semibold">Note:</span> {TA_NOTE}
             </div>
-        </div>}
+          </div>
+        )}
 
         {/* Main Form Card */}
         <div className="bg-white rounded-2xl shadow-xl p-10 border border-gray-100">
           {!isSubmitted && (
-
-
-            <form onSubmit={handleSubmit} onChange={validate} className="space-y-6">
-              {/* Roll Number Input */}
+            <div className="space-y-6">
               <div className="space-y-2">
                 <label htmlFor="rollNumber" className="block text-sm font-medium text-gray-700">
                   Roll Number
@@ -239,18 +225,16 @@ function StudentFormPage() {
                   <input
                     id="rollNumber"
                     type="text"
-                    value={rollNumber.trim()}
-                    onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
+                    value={rollNumber}
+                    onChange={(e) => setRollNumber(e.target.value.toUpperCase().trim())}
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
                     placeholder="e.g., EE25X001"
-                    required
                     autoFocus
                   />
                 </div>
               </div>
 
-              {/* Name Input */}
-              <div className="space-y-2" >
+              <div className="space-y-2">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                   Full Name
                 </label>
@@ -265,17 +249,14 @@ function StudentFormPage() {
                     onChange={(e) => setName(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
                     placeholder="Enter your full name"
-                    required
                   />
                 </div>
               </div>
 
-              {/* Conditional Answer Input */}
               {showExtraInput && (
                 <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
                   <label htmlFor="answer" className="block text-sm font-medium text-gray-700">
                     Additional Response
-                    {/* <span className="text-xs text-gray-500 ml-1">(Optional)</span> */}
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -311,9 +292,9 @@ function StudentFormPage() {
 
               {/* Submit Button */}
               <button
-                type="submit"
+                type="button"
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || !attendanceEnabled}
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:hover:transform-none"
               >
                 {loading ? (
@@ -325,12 +306,11 @@ function StudentFormPage() {
                   <span>Mark Attendance</span>
                 )}
               </button>
-            </form>
+            </div>
           )}
 
           {isSubmitted && (
-            // Display Roll Number if available
-            <div className="">
+            <div>
               <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl mb-4 transition-all animate-in slide-in-from-left-2 duration-400">
                 <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
                 <span className="text-green-700 text-sm">Your attendance for today has already been marked.</span>
@@ -340,37 +320,40 @@ function StudentFormPage() {
                 <span>Roll Number: {localRollNumber}</span>
               </div>
               <div
-                className={` text-bold text-sm mb-4 font-semibold border rounded-xl p-4 
-                ${leaveCount < 0 ? "text-red-600 bg-yellow-50 border-yellow-200" : leaveCount / totalCount > tolerance
+                className={`text-bold text-sm mb-4 font-semibold border rounded-xl p-4 
+                ${leaveCount < 0 ? "text-red-600 bg-yellow-50 border-yellow-200" : 
+                  leaveCount / totalCount > tolerance
                     ? "text-red-600 bg-red-50 border-red-200"
                     : "text-green-600 bg-green-50 border-green-200"}`
                 }
               >
-                {leaveCount == 0 && totalCount == 0
+                {leaveCount === 0 && totalCount === 0
                   ? "Loading..." :
                   leaveCount < 0
-                    ? <div className="flex gap-3 ">
+                    ? <div className="flex gap-3">
                       <TriangleAlert className="h-5 w-5 text-red-500 flex-shrink-0" />
                       Did you enter correct Roll Number?
-                    </div > :
+                    </div> :
                     leaveCount / totalCount > tolerance
                       ? <div className='flex items-center gap-3'>
-                        <TriangleAlert className="h-5 w-5 text-red-500 " />
-                        Please attend class regularly! <br />
-                        Leave taken: {leaveCount} days
-                        <br />
-                        Attendance percentage: {totalCount > 0 ? (((totalCount - leaveCount) / totalCount) * 100).toFixed(2) : '0'}%
+                        <TriangleAlert className="h-5 w-5 text-red-500" />
+                        <div>
+                          Please attend class regularly!
+                          <br />
+                          Leave taken: {leaveCount} days
+                          <br />
+                          Attendance percentage: {totalCount > 0 ? (((totalCount - leaveCount) / totalCount) * 100).toFixed(2) : '0'}%
+                        </div>
                       </div>
                       :
-                      <div className='flex gap-3 text-green-700'>  <CalendarX2 className="h-5 w-5 text-green-500 " />
-
+                      <div className='flex gap-3 text-green-700'>
+                        <CalendarX2 className="h-5 w-5 text-green-500" />
                         Leave taken: {leaveCount} days
                       </div>
                 }
               </div>
             </div>
           )}
-
         </div>
 
         {/* Footer */}
@@ -379,12 +362,9 @@ function StudentFormPage() {
             Having trouble? Contact TA.
           </p>
         </div>
-
       </div>
-
     </div>
   );
-
 }
 
 export default StudentFormPage;

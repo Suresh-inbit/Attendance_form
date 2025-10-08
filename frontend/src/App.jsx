@@ -10,7 +10,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<StudentFormPage />} />
-        <Route path="/admin" element={<AttendanceListPage />} />
+        <Route path="/admin0" element={<AttendanceListPage />} />
         <Route path="/data" element={<AllRecordsPage />} />
         <Route path="/qr" element={<QRCodePage />} />
         <Route path="*" element={<div className="text-center mt-10">Page Not Found</div>} />
