@@ -226,7 +226,7 @@ function StudentFormPage() {
           {!isSubmitted && (
 
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} onChange={validate} className="space-y-6">
               {/* Roll Number Input */}
               <div className="space-y-2">
                 <label htmlFor="rollNumber" className="block text-sm font-medium text-gray-700">
@@ -239,7 +239,7 @@ function StudentFormPage() {
                   <input
                     id="rollNumber"
                     type="text"
-                    value={rollNumber}
+                    value={rollNumber.trim()}
                     onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
                     placeholder="e.g., EE25X001"
