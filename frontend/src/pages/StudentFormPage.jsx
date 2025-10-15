@@ -101,8 +101,8 @@ function StudentFormPage() {
       setError('Roll Number is required.');
       return false;
     }
-    if (!rollNumber.match(/^[a-zA-Z0-9]+$/)) {
-      setError('Roll Number must contain only letters and numbers.');
+    if (!rollNumber.match(/^EE\d{2}B\d{3}$/)) {
+      setError('Roll Number must be of format EE25B000.');
       return false;
     }
     if (rollNumber.length < 3) {

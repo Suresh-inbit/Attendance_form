@@ -73,8 +73,8 @@ router.get('/leave-count', async (req, res) => {
         res.json({ 
             success: true, 
             rollNumber, 
-            count: record?.count || -1,
-            totalCount: totalCountRecord?.count || -1
+            count: (record && record.count !== undefined && record.count !== null) ? record.count : -1,
+            totalCount: (totalCountRecord && totalCountRecord.count !== undefined && totalCountRecord.count !== null) ? totalCountRecord.count : -1
         });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error' });
